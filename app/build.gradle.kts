@@ -1,21 +1,30 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.aboutLibraries)
+    alias(libs.plugins.ksp)
 }
 
 android {
-    namespace = "com.example.anchor"
+    namespace = "com.example.stashly"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.anchor"
+        applicationId = "com.example.stashly"
         minSdk = 25
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    kotlin {
+        compilerOptions {
+            jvmToolchain(17)
+        }
     }
 
     buildTypes {
@@ -49,11 +58,56 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    implementation(libs.androidx.core.splashscreen)
+
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.kmpalette.core)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.composeIcons.fontAwesome)
+    implementation(libs.zoomable)
+    implementation(libs.androidx.datastore.preferences.core)
+    implementation(libs.datetime)
+    implementation(libs.jetbrains.compose.navigation)
+    implementation(libs.materialKolor)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+    implementation(libs.landscapist.coil)
+    implementation(libs.landscapist.placeholder)
+    implementation(libs.colorpicker.compose)
+    implementation(libs.ksoup)
+    implementation(libs.hypnoticcanvas)
+    implementation(libs.aboutLibraries)
+    implementation(libs.aboutLibraries.compose.m3)
+    implementation(libs.filekit.core)
+    implementation(libs.filekit.dialogs.compose)
+
+    implementation(libs.koin.core)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.compose.viewmodel)
+    implementation(libs.koin.compose.viewmodel.navigation)
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.auth)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
