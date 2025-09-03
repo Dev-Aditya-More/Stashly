@@ -13,6 +13,7 @@ ktor = "3.2.3"
 koin-core = "4.1.0"
 compose = "1.9.0"
 material3 = "1.5.0-alpha02"
+materialIconsExtended = "1.7.8"
 room = "2.7.2"
 colorpicker = "1.1.2"
 filekitCore = "0.10.0"
@@ -34,6 +35,7 @@ androidx-lifecycle = "2.9.3"
 [libraries]
 
 # Others
+androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekitCore" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekitCore" }
 kmpalette-core = { module = "com.kmpalette:kmpalette-core", version.ref = "kmpalette" }

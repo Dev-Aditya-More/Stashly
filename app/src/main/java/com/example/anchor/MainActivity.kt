@@ -11,7 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.anchor.ui.screens.MainScreen
 import com.example.anchor.ui.theme.AnchorTheme
+import com.example.anchor.ui.viewmodels.MainViewModel
+import org.koin.androidx.viewmodel.ext.android.getViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,6 +24,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             AnchorTheme {
 
+                val viewModel: MainViewModel = koinViewModel()
+                MainScreen(viewModel)
             }
         }
     }
