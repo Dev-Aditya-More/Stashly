@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 
 @Composable
@@ -38,18 +39,48 @@ fun SavedItemCard(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = item.title ?: item.url,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = item.url,
-                    style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                when (item.contentType) {
+                    ContentType.LINK -> {
+                        item.title?.let { TypingText(fullText = it) }
+                        item.url?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                    ContentType.TEXT -> {
+                        item.title?.let {
+                            TypingText(fullText = it)
+                        } ?: Text(text = "Untitled")
+                        item.text?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                    ContentType.FILE -> {
+                        Text(
+                            text = item.title ?: "File",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        item.filePath?.let {
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+
+                    ContentType.UNIDENTIFIED -> TODO()
+                }
             }
 
             IconButton(onClick = { onDelete(item) }) {

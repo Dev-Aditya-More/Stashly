@@ -1,7 +1,15 @@
 package com.example.anchor.data.local
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "items")
 data class SavedItem(
-    val url: String,
-    val title: String? = null,
-    val type: ContentType = ContentType.LINK
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val contentType: ContentType,
+    val url: String? = null,       // for LINK
+    val title: String? = null,     // optional metadata
+    val text: String? = null,      // for TEXT snippets
+    val filePath: String? = null,  // local storage reference for FILE
+    val createdAt: Long = System.currentTimeMillis()
 )

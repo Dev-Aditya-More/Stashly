@@ -18,14 +18,14 @@ val appModule = module{
     single{
 
         Room.databaseBuilder(
-            get(),
-            AppDatabase::class.java,
-            "app_database"
-        ).build()
+                get(),
+                AppDatabase::class.java,
+                "app_database"
+            ).fallbackToDestructiveMigration(true).build()
     }
 
     single{
-        get<AppDatabase>().linkDao()
+        get<AppDatabase>().itemDao()
     }
 
     single {

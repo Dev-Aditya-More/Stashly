@@ -16,10 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LinkInputField(
+fun InputField(
     value: String,
     onValueChange: (String) -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    isError: Boolean = false
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -30,8 +31,9 @@ fun LinkInputField(
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
-                placeholder = { Text("Paste link here...") },
-                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Paste your stuff...") },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                isError = isError,
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp)
             )
@@ -41,7 +43,7 @@ fun LinkInputField(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Save Link")
+                Text("Stash it")
             }
         }
     }

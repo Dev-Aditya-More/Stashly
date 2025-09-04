@@ -61,6 +61,7 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
 
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.jsoup)
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
