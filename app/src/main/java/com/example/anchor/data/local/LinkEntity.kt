@@ -3,7 +3,7 @@ package com.example.anchor.data.local
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "items")
+@Entity(tableName = "links")
 data class LinkEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val url: String?,

@@ -62,7 +62,7 @@ fun SavedItemCard(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
-                        }
+                        } ?: "NO TEXT FOUND"
                     }
                     ContentType.FILE -> {
                         Text(
@@ -79,7 +79,6 @@ fun SavedItemCard(
                         }
                     }
 
-                    ContentType.UNIDENTIFIED -> TODO()
                 }
             }
 

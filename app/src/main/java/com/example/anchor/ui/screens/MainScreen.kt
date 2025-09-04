@@ -16,12 +16,17 @@ import coil3.toUri
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import com.example.anchor.ui.components.InputField
+import com.example.anchor.ui.components.LottieAnimationExample
 import com.example.anchor.ui.components.SavedContentScreen
 import com.example.anchor.ui.components.StashlyAppBar
 import com.example.anchor.ui.components.UploadFileField
 import com.example.anchor.ui.viewmodels.MainViewModel
 import com.example.anchor.utils.classifyInput
 import com.example.anchor.utils.normalizeUrl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +34,7 @@ fun MainScreen(viewModel: MainViewModel) {
     var text by remember { mutableStateOf("") }
     val items by viewModel.items.collectAsState(initial = emptyList())
     var isError by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
 
@@ -51,36 +57,39 @@ fun MainScreen(viewModel: MainViewModel) {
                     isError = false
                 },
                 onSaveClick = {
-                    val type = classifyInput(text)
 
-                    when (type) {
-                        ContentType.LINK -> {
-                            val normalized = normalizeUrl(text) // normalize only if it's a URL
-                            if (isValidUrl(normalized)) {
-                                viewModel.saveLink(
+                    scope.launch {
+                        val type = withContext(Dispatchers.Default) { classifyInput(text) }
+
+                        when (type) {
+                            ContentType.LINK -> {
+                                val normalized = normalizeUrl(text)
+                                if (isValidUrl(normalized)) {
+                                    viewModel.saveLink(
+                                        SavedItem(
+                                            url = normalized,
+                                            contentType = ContentType.LINK
+                                        )
+                                    )
+                                    text = ""
+                                } else {
+                                    isError = true
+                                }
+                            }
+
+                            ContentType.TEXT -> {
+                                viewModel.saveText(
                                     SavedItem(
-                                        url = normalized,
-                                        contentType = ContentType.LINK
+                                        text = text,
+                                        contentType = ContentType.TEXT
                                     )
                                 )
                                 text = ""
-                            } else {
+                            }
+
+                            else -> {
                                 isError = true
                             }
-                        }
-
-                        ContentType.TEXT -> {
-                            viewModel.saveText(
-                                SavedItem(
-                                    text = text,
-                                    contentType = ContentType.TEXT
-                                )
-                            )
-                            text = ""
-                        }
-
-                        else -> {
-                            isError = true
                         }
                     }
                 },
@@ -128,11 +137,7 @@ fun MainScreen(viewModel: MainViewModel) {
 
             if(items.isEmpty()){
 
-                Text(
-                    "Nothing saved yet",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                LottieAnimationExample()
             }
             else {
                 SavedContentScreen(
