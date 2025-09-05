@@ -22,19 +22,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Read from gradle/local.properties using Providers API
-        val openAiKey = providers
-            .gradleProperty("apikey")
-            .map { it.trim() }       // trim any stray whitespace/newlines
-            .orElse("")               // fallback if missing
-            .get()
-
-        buildConfigField(
-            "String",
-            "OPENAI_API_KEY",
-            "\"$openAiKey\""          // must be quoted for a String literal
-        )
-
     }
 
     kotlin {
@@ -79,6 +66,9 @@ dependencies {
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.jsoup)
+
+    implementation(libs.androidx.navigation.compose)
+    implementation("androidx.compose.animation:animation-core:1.7.0-alpha07")
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

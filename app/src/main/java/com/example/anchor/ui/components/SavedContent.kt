@@ -1,5 +1,8 @@
 package com.example.anchor.ui.components
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,10 +17,14 @@ import androidx.compose.ui.unit.dp
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SavedContentScreen(
+fun SharedTransitionScope.SavedContentScreen(
+    animatedVisibilityScope: AnimatedVisibilityScope,
     savedItems: List<SavedItem>,
-    onDelete: (SavedItem) -> Unit
+    onDelete: (SavedItem) -> Unit,
+    onEdit: (SavedItem) -> Unit,
+    onItemClick: (SavedItem) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
@@ -28,7 +35,7 @@ fun SavedContentScreen(
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(savedItems) { item ->
-                SavedItemCard(item, onDelete)
+                SavedItemCard(animatedVisibilityScope, item, onDelete, onEdit, onItemClick)
             }
         }
     }

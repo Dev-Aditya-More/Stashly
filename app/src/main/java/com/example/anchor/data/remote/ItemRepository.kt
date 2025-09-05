@@ -9,6 +9,7 @@ interface LinkRepository {
     suspend fun saveItem(item: SavedItem)
     fun getAllItems(): Flow<List<SavedItem>>
     suspend fun removeItem(item: SavedItem)
+    suspend fun editItem(item: SavedItem)
 }
 
 class LinkRepositoryImpl(
@@ -23,5 +24,8 @@ class LinkRepositoryImpl(
 
     override suspend fun removeItem(item: SavedItem) {
         dao.delete(item)
+    }
+    override suspend fun editItem(item: SavedItem) {
+        dao.update(item)
     }
 }

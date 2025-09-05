@@ -1,8 +1,5 @@
 package com.example.anchor.ui.viewmodels
 
-import android.R.attr.apiKey
-import android.net.Uri
-import android.util.Log
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,8 +7,6 @@ import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import com.example.anchor.data.remote.LinkRepository
 import com.example.anchor.jsoup.fetchPageTitle
-import com.example.anchor.openai.generateTitle
-import com.example.stashly.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -27,7 +22,7 @@ class MainViewModel(
 
         repository.getAllItems()
             .flowOn(Dispatchers.IO)
-            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     fun saveLink(urlItem: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -55,9 +50,7 @@ class MainViewModel(
     fun saveText(text: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
 
-            val title = generateTitle(text.text ?: "", apiKey = BuildConfig.OPENAI_API_KEY)
-            Log.d("AI_DEBUG", "Generated Title: $title")
-
+            val title = generateTempTitle(text.text)
             val item = SavedItem(
                 title = title ?: "Untitled",
                 text = text.text,
@@ -81,10 +74,30 @@ class MainViewModel(
         }
     }
 
+    fun editItem(item: SavedItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.editItem(item)
+        }
+    }
 
     fun removeItem(item: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.removeItem(item)
         }
     }
+    fun getItemById(id: Int): SavedItem? {
+        // just search the latest value of the StateFlow
+        return items.value.find { it.id == id }
+    }
+}
+
+fun generateTempTitle(text: String?, wordLimit: Int = 4): String {
+    val words = text?.trim()?.split("\\s+".toRegex())
+    return words?.size?.let {
+        if (it <= wordLimit) {
+            text
+        } else {
+            words.take(wordLimit)?.joinToString(" ") + "..."
+        }
+    }.toString()
 }

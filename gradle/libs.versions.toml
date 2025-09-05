@@ -1,5 +1,7 @@
 [versions]
+accompanistSharedElement = "0.30.1"
 agp = "8.12.2"
+animationCompose = "1.7.0-alpha07"
 jsoup = "1.21.2"
 kotlin = "2.2.10"
 ksp = "2.2.10-2.0.2"
@@ -13,11 +15,11 @@ composeBom = "2025.08.01"
 ktor = "3.2.3"
 koin-core = "4.1.0"
 compose = "1.9.0"
-lottie = "6.1.0"
 lottieCompose = "6.6.7"
 material3 = "1.5.0-alpha02"
 materialIconsExtended = "1.7.8"
 moshi = "1.15.2"
+navigationCompose = "2.7.7"
 okhttp = "5.1.0"
 room = "2.7.2"
 colorpicker = "1.1.2"
@@ -36,11 +38,13 @@ datetime = "0.7.1"
 zoomable = "2.8.1"
 composeIcons = "1.1.1"
 androidx-lifecycle = "2.9.3"
+accompanist = "0.30.1"
 
 [libraries]
 
 # Others
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekitCore" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekitCore" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
