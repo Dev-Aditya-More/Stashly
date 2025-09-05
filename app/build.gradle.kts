@@ -1,8 +1,10 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.aboutLibraries)
     alias(libs.plugins.ksp)
 }
@@ -19,6 +21,20 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Read from gradle/local.properties using Providers API
+        val openAiKey = providers
+            .gradleProperty("apikey")
+            .map { it.trim() }       // trim any stray whitespace/newlines
+            .orElse("")               // fallback if missing
+            .get()
+
+        buildConfigField(
+            "String",
+            "OPENAI_API_KEY",
+            "\"$openAiKey\""          // must be quoted for a String literal
+        )
+
     }
 
     kotlin {
@@ -44,6 +60,7 @@ android {
         jvmTarget = "11"
     }
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 }

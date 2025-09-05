@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -22,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
+import com.example.stashly.R
 
 @Composable
 fun SavedItemCard(
@@ -52,9 +54,17 @@ fun SavedItemCard(
                         }
                     }
                     ContentType.TEXT -> {
-                        item.title?.let {
-                            TypingText(fullText = it)
-                        } ?: Text(text = "Untitled")
+                        if (item.title == null) {
+                            // Show Lottie animation while title is being fetched
+                            LottieAnimationExample(
+                                resId = R.raw.loading, // your .lottie file placed in res/raw
+                                modifier = Modifier.size(40.dp).fillMaxWidth()
+                            )
+                        } else {
+                            // Show the generated title
+                            TypingText(fullText = item.title!!)
+                        }
+
                         item.text?.let {
                             Text(
                                 text = it,
@@ -62,8 +72,9 @@ fun SavedItemCard(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
-                        } ?: "NO TEXT FOUND"
+                        } ?: Text(text = "NO TEXT FOUND")
                     }
+
                     ContentType.FILE -> {
                         Text(
                             text = item.title ?: "File",

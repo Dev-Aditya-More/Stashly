@@ -1,5 +1,6 @@
 package com.example.anchor.ui.viewmodels
 
+import android.R.attr.apiKey
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
@@ -9,8 +10,8 @@ import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import com.example.anchor.data.remote.LinkRepository
 import com.example.anchor.jsoup.fetchPageTitle
-import com.example.anchor.openai.generateTitleSuspend
-import com.example.anchor.utils.Constants.apiKey
+import com.example.anchor.openai.generateTitle
+import com.example.stashly.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -51,23 +52,18 @@ class MainViewModel(
             }
         }
     }
-
-
     fun saveText(text: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            val title = generateTitleSuspend(
-                text.text ?: "",
-                apiKey
-            )
 
-            repository.saveItem(
-                SavedItem(
-                    title = title,
-                    text = text.text,
-                    contentType = ContentType.TEXT
-                )
+            val title = generateTitle(text.text ?: "", apiKey = BuildConfig.OPENAI_API_KEY)
+            Log.d("AI_DEBUG", "Generated Title: $title")
+
+            val item = SavedItem(
+                title = title ?: "Untitled",
+                text = text.text,
+                contentType = ContentType.TEXT
             )
-            Log.d("SavedItemDebug", "Saved TEXT item: $text")
+            repository.saveItem(item)
         }
     }
 

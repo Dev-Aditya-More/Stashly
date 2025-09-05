@@ -137,7 +137,9 @@ fun MainScreen(viewModel: MainViewModel) {
 
             if(items.isEmpty()){
 
-                LottieAnimationExample()
+                LottieAnimationExample(
+                   modifier = Modifier.size(300.dp).padding(top = 50.dp),
+                )
             }
             else {
                 SavedContentScreen(

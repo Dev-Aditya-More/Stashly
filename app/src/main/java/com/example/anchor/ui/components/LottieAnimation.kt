@@ -15,9 +15,9 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.stashly.R
 
 @Composable
-fun LottieAnimationExample() {
+fun LottieAnimationExample(modifier: Modifier = Modifier, resId: Int = R.raw.animation) {
     // Load Lottie composition
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animation))
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
 
     // Animate the composition infinitely
     val progress by animateLottieCompositionAsState(
@@ -31,7 +31,7 @@ fun LottieAnimationExample() {
       LottieAnimation(
           composition = composition,
           progress = progress,
-          modifier = Modifier.size(200.dp)
+          modifier = Modifier.then(modifier)
       )
   }
 }
