@@ -19,6 +19,8 @@ Stashly lets you save, organize, and view different types of content (text, link
 
 <video src="https://github.com/user-attachments/assets/4411b1f7-de44-4cd6-bb40-f607b2805c72" width="300" controls></video>
 
+<video src="https://github.com/user-attachments/assets/7a47f681-ce47-467d-8d0b-c657add88e33" width="300" controls></video>
+
 ---
 
 ## 🛠️ Tech Stack
