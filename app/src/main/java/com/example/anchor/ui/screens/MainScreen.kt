@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -41,6 +42,7 @@ fun SharedTransitionScope.MainScreen(animatedVisibilityScope: AnimatedVisibility
     val items by viewModel.items.collectAsState(initial = emptyList())
     var isError by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Scaffold(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
@@ -105,7 +107,9 @@ fun SharedTransitionScope.MainScreen(animatedVisibilityScope: AnimatedVisibility
                                         contentType = ContentType.FILE,
                                         title = fileName,
                                         filePath = text
-                                    )
+                                    ),
+                                    context
+
                                 )
                                 text = ""
                             }
@@ -139,7 +143,7 @@ fun SharedTransitionScope.MainScreen(animatedVisibilityScope: AnimatedVisibility
 
             UploadFileField(
                 modifier = Modifier.fillMaxWidth(),
-                onFilePicked = { uri ->
+                onFilePicked = { uri, context ->
                     val fileName = uri.lastPathSegment ?: "File"
                     val newItem = SavedItem(
                         contentType = ContentType.FILE,
@@ -151,7 +155,8 @@ fun SharedTransitionScope.MainScreen(animatedVisibilityScope: AnimatedVisibility
                             contentType = ContentType.FILE,
                             title = newItem.title,
                             filePath = newItem.filePath
-                        )
+                        ),
+                        context
                     )
                 }
             )
@@ -173,6 +178,15 @@ fun SharedTransitionScope.MainScreen(animatedVisibilityScope: AnimatedVisibility
                     onItemClick = { savedItem ->
                         // navigate to detail screen with the item's id
                         navController.navigate("detail/${savedItem.id}")
+                    },
+                    onNewFilePicked = { uri ->
+                        val fileName = uri.lastPathSegment ?: "File"
+                        val newItem = SavedItem(
+                            contentType = ContentType.FILE,
+                            title = fileName,
+                            filePath = uri.toString()
+                        )
+                        viewModel.saveFile(newItem, context)
                     }
                 )
             }

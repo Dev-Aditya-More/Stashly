@@ -1,5 +1,6 @@
 package com.example.anchor.ui.components
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
+import java.net.URI
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -25,6 +27,7 @@ fun SharedTransitionScope.SavedContentScreen(
     onDelete: (SavedItem) -> Unit,
     onEdit: (SavedItem) -> Unit,
     onItemClick: (SavedItem) -> Unit,
+    onNewFilePicked: (Uri) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
@@ -35,7 +38,7 @@ fun SharedTransitionScope.SavedContentScreen(
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             items(savedItems) { item ->
-                SavedItemCard(animatedVisibilityScope, item, onDelete, onEdit, onItemClick)
+                SavedItemCard(animatedVisibilityScope, item, onDelete, onEdit, onItemClick, onNewFilePicked)
             }
         }
     }

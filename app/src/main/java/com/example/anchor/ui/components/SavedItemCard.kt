@@ -1,5 +1,8 @@
 package com.example.anchor.ui.components
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
@@ -42,6 +45,9 @@ import androidx.compose.ui.unit.dp
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import com.example.stashly.R
+import androidx.core.net.toUri
+import com.example.anchor.ui.viewmodels.MainViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -51,11 +57,24 @@ fun SharedTransitionScope.SavedItemCard(
     onDelete: (SavedItem) -> Unit,
     onSaveEdit: (SavedItem) -> Unit,
     onItemClick: (SavedItem) -> Unit,
+    onNewFilePicked: (Uri) -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
     var editedTitle by remember { mutableStateOf(item.title ?: "") }
     var editedText by remember { mutableStateOf(item.text ?: "") }
+    var editedUrl by remember { mutableStateOf(item.url ?: "") }
     val sharedContentState = rememberSharedContentState("card_${item.id}")
+    var editedPath by remember { mutableStateOf(item.filePath ?: "") }
+    val viewModel: MainViewModel = koinViewModel()
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val path = it.toString() // you can also resolve actual file name if needed
+            editedPath = path
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -80,14 +99,49 @@ fun SharedTransitionScope.SavedItemCard(
                     label = { Text("Title") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                if (item.contentType == ContentType.TEXT) {
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = editedText,
-                        onValueChange = { editedText = it },
-                        label = { Text("Text") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                when (item.contentType) {
+                    ContentType.LINK -> {
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = editedUrl,
+                            onValueChange = { editedUrl = it },
+                            label = { Text("${item.contentType}".lowercase()) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    ContentType.TEXT -> {
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = editedText,
+                            onValueChange = { editedText = it },
+                            label = { Text("${item.contentType}".lowercase()) },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    ContentType.FILE -> {
+                        Spacer(Modifier.height(8.dp))
+
+                        Text(
+                            text = if (editedPath.isNotEmpty()) "Selected: $editedPath" else "No file chosen",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        ReplaceFileButton(
+                            onFileReplaced = { uri, context ->
+                                editedPath = uri.toString()
+                                // Update existing item, not insert
+                                val updatedItem = item.copy(
+                                    filePath = editedPath,
+                                    title = uri.lastPathSegment ?: "File"
+                                )
+                                viewModel.saveFile(updatedItem, context)
+                            }
+                        )
+                    }
+
+
                 }
                 Spacer(Modifier.height(8.dp))
                 Row {

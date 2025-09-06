@@ -1,5 +1,10 @@
 package com.example.anchor.ui.viewmodels
 
+import android.app.Application
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -60,9 +65,10 @@ class MainViewModel(
         }
     }
 
-    fun saveFile(fileItem: SavedItem) {
+    fun saveFile(fileItem: SavedItem, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val fileName = fileItem.filePath?.toUri()?.lastPathSegment ?: "File"
+            val uri = fileItem.filePath?.toUri()
+            val fileName = uri?.let { context.getFileName(it) } ?: "File"
 
             val item = SavedItem(
                 filePath = fileItem.filePath,
@@ -100,4 +106,16 @@ fun generateTempTitle(text: String?, wordLimit: Int = 4): String {
             words.take(wordLimit)?.joinToString(" ") + "..."
         }
     }.toString()
+}
+
+fun Context.getFileName(uri: Uri): String {
+    var name = "File"
+    val cursor = contentResolver.query(uri, null, null, null, null)
+    cursor?.use {
+        val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        if (it.moveToFirst() && nameIndex >= 0) {
+            name = it.getString(nameIndex)
+        }
+    }
+    return name
 }
