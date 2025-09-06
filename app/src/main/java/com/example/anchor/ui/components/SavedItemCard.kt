@@ -53,28 +53,18 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun SharedTransitionScope.SavedItemCard(
     animatedVisibilityScope: AnimatedVisibilityScope,
+    sharedContentState: SharedTransitionScope.SharedContentState,
     item: SavedItem,
     onDelete: (SavedItem) -> Unit,
     onSaveEdit: (SavedItem) -> Unit,
     onItemClick: (SavedItem) -> Unit,
-    onNewFilePicked: (Uri) -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
     var editedTitle by remember { mutableStateOf(item.title ?: "") }
     var editedText by remember { mutableStateOf(item.text ?: "") }
     var editedUrl by remember { mutableStateOf(item.url ?: "") }
-    val sharedContentState = rememberSharedContentState("card_${item.id}")
     var editedPath by remember { mutableStateOf(item.filePath ?: "") }
     val viewModel: MainViewModel = koinViewModel()
-
-    val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            val path = it.toString() // you can also resolve actual file name if needed
-            editedPath = path
-        }
-    }
 
     Card(
         modifier = Modifier
@@ -129,16 +119,16 @@ fun SharedTransitionScope.SavedItemCard(
                         )
 
                         ReplaceFileButton(
-                            onFileReplaced = { uri, context ->
+                            onFileReplaced = { uri, fileName ->
                                 editedPath = uri.toString()
-                                // Update existing item, not insert
                                 val updatedItem = item.copy(
                                     filePath = editedPath,
-                                    title = uri.lastPathSegment ?: "File"
+                                    title = fileName
                                 )
-                                viewModel.saveFile(updatedItem, context)
+                                viewModel.editItem(updatedItem)
                             }
                         )
+
                     }
 
 

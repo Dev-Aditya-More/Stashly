@@ -2,6 +2,7 @@
 accompanistSharedElement = "0.30.1"
 agp = "8.12.2"
 animationCompose = "1.7.0-alpha07"
+coilCompose = "2.7.0"
 jsoup = "1.21.2"
 kotlin = "2.2.10"
 ksp = "2.2.10-2.0.2"
@@ -45,6 +46,7 @@ accompanist = "0.30.1"
 # Others
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekitCore" }
 filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose", version.ref = "filekitCore" }
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }

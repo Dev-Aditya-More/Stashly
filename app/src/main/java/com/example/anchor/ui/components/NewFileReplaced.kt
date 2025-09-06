@@ -17,17 +17,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.anchor.ui.viewmodels.getFileName
 
 @Composable
 fun ReplaceFileButton(
     modifier: Modifier = Modifier,
-    onFileReplaced: (Uri, Context) -> Unit
+    onFileReplaced: (Uri, String) -> Unit
 ) {
     val context = LocalContext.current
+
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        uri?.let { onFileReplaced(it, context) }
+        uri?.let { pickedUri ->
+            val fileName = getFileName(context, pickedUri)
+            onFileReplaced(pickedUri, fileName)
+        }
     }
 
     Button(
@@ -43,3 +48,4 @@ fun ReplaceFileButton(
         Text("Replace File")
     }
 }
+

@@ -68,7 +68,7 @@ class MainViewModel(
     fun saveFile(fileItem: SavedItem, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             val uri = fileItem.filePath?.toUri()
-            val fileName = uri?.let { context.getFileName(it) } ?: "File"
+            val fileName = uri?.let { getFileName(context,it) } ?: "File"
 
             val item = SavedItem(
                 filePath = fileItem.filePath,
@@ -108,14 +108,16 @@ fun generateTempTitle(text: String?, wordLimit: Int = 4): String {
     }.toString()
 }
 
-fun Context.getFileName(uri: Uri): String {
-    var name = "File"
-    val cursor = contentResolver.query(uri, null, null, null, null)
+fun getFileName(context: Context, uri: Uri): String {
+    var name: String? = null
+    val cursor = context.contentResolver.query(uri, null, null, null, null)
     cursor?.use {
-        val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-        if (it.moveToFirst() && nameIndex >= 0) {
-            name = it.getString(nameIndex)
+        if (it.moveToFirst()) {
+            val index = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (index != -1) {
+                name = it.getString(index)
+            }
         }
     }
-    return name
+    return name ?: uri.lastPathSegment ?: "File"
 }
