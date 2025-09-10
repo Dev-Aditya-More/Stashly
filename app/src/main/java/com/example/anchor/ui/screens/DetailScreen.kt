@@ -1,118 +1,162 @@
 package com.example.anchor.ui.screens
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.OpenInBrowser
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.anchor.data.local.ContentType
-import com.example.anchor.ui.viewmodels.MainViewModel
-import org.koin.compose.viewmodel.koinViewModel
-import androidx.core.net.toUri
+import com.example.anchor.data.local.SavedItem
 
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SharedTransitionScope.DetailScreen(
-    itemId: Int,
-    navController: NavController,
-    viewModel: MainViewModel = koinViewModel(),
-    animatedVisibilityScope: AnimatedVisibilityScope
+fun DetailScreen(
+    item: SavedItem,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
 ) {
-    val item = viewModel.getItemById(itemId) ?: return
-    val sharedState = rememberSharedContentState("card_${item.id}")
-
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detail") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                title = { Text("Details") },
+                actions = {
+                    IconButton(onClick = onEdit) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    }
+                    IconButton(onClick = onDelete) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
                     }
                 }
             )
         }
-    ) { padding ->
-        Column(
+    ) { paddingValues ->
+        Card(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+                .padding(paddingValues)
+                .padding(16.dp)
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .sharedElement(
-                        sharedContentState = sharedState,
-                        animatedVisibilityScope = animatedVisibilityScope,
-                        boundsTransform = { _, _ ->
-                            tween(durationMillis = 1000)
-                        }
-                    )
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(Modifier.padding(16.dp)) {
-                    Text(text = item.title ?: "No title", style = MaterialTheme.typography.headlineSmall)
+                // Title
+                Text(
+                    text = item.title ?: item.contentType.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
 
-                    when (item.contentType) {
-                        ContentType.LINK -> {
-                            Text(text = item.url ?: "", color = Color.Blue)
+                // Content
+                when (item.contentType) {
+                    ContentType.TEXT -> {
+                        Text(
+                            text = item.text ?: "No text available",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        ActionRow(
+                            actions = listOf(
+                                Action("Copy", Icons.Default.ContentCopy) { /* Copy text */ },
+                                Action("Share", Icons.Default.Share) { /* Share text */ }
+                            )
+                        )
+                    }
+
+                    ContentType.LINK -> {
+                        Text(
+                            text = item.url ?: "No link available",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.primary
+                            ),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        ActionRow(
+                            actions = listOf(
+                                Action("", Icons.AutoMirrored.Filled.OpenInNew) { /* Open in browser */ },
+                                Action("", Icons.Default.ContentCopy) { /* Copy link */ },
+                                Action("", Icons.Default.Share) { /* Share link */ }
+                            )
+                        )
+                    }
+
+                    ContentType.FILE -> {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Description,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = item.filePath?.substringAfterLast("/") ?: "No file path",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                        ContentType.TEXT -> {
-                            Text(text = item.text ?: "")
-                        }
-                        ContentType.FILE -> {
-                            Text(text = item.filePath ?: "")
-                        }
+                        ActionRow(
+                            actions = listOf(
+                                Action("", Icons.Default.FolderOpen) { /* Open file */ },
+                                Action("", Icons.Default.ContentCopy) { /* Copy file path */ },
+                                Action("", Icons.Default.Share) { /* Share file */ }
+                            )
+                        )
                     }
                 }
             }
         }
     }
 }
+
+// Helper composable for buttons
+@Composable
+fun ActionRow(actions: List<Action>) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        actions.forEach { action ->
+            OutlinedButton(
+                onClick = action.onClick,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(action.icon, contentDescription = null)
+                Spacer(Modifier.width(6.dp))
+                Text(action.label)
+            }
+        }
+    }
+}
+
+data class Action(val label: String, val icon: ImageVector, val onClick: () -> Unit)

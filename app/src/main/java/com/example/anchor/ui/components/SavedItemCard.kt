@@ -1,15 +1,7 @@
 package com.example.anchor.ui.components
 
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,9 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -44,20 +32,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
-import com.example.stashly.R
-import androidx.core.net.toUri
 import com.example.anchor.ui.viewmodels.MainViewModel
+import com.example.stashly.R
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SharedTransitionScope.SavedItemCard(
-    animatedVisibilityScope: AnimatedVisibilityScope,
-    sharedContentState: SharedTransitionScope.SharedContentState,
+fun SavedItemCard(
     item: SavedItem,
     onDelete: (SavedItem) -> Unit,
     onSaveEdit: (SavedItem) -> Unit,
-    onItemClick: (SavedItem) -> Unit,
+    onItemClick: (SavedItem) -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
     var editedTitle by remember { mutableStateOf(item.title ?: "") }
@@ -69,13 +54,6 @@ fun SharedTransitionScope.SavedItemCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .sharedElement(
-                sharedContentState,
-                animatedVisibilityScope,
-                boundsTransform = { _, _ ->
-                    tween(durationMillis = 1000)
-                }
-            )
             .clickable { onItemClick(item) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(8.dp)

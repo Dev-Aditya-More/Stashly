@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
+import com.example.anchor.Screen
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import com.example.anchor.ui.components.InputField
@@ -26,18 +27,21 @@ import com.example.anchor.ui.viewmodels.MainViewModel
 import com.example.anchor.utils.classifyInput
 import com.example.anchor.utils.normalizeUrl
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun SharedTransitionScope.MainScreen(navController: NavHostController, viewModel: MainViewModel = koinViewModel()) {
+fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koinViewModel()) {
     var text by remember { mutableStateOf("") }
     val items by viewModel.items.collectAsState(initial = emptyList())
     var isError by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -172,9 +176,13 @@ fun SharedTransitionScope.MainScreen(navController: NavHostController, viewModel
                     savedItems = items,
                     onDelete = { savedItem -> viewModel.removeItem(savedItem) },
                     onEdit = { savedItem -> viewModel.editItem(savedItem) },
-                    onItemClick = { savedItem ->
-                        // navigate to detail screen with the item's id
-                        navController.navigate("detail/${savedItem.id}")
+                    onItemClick = { item ->
+                        coroutineScope.launch {
+                            delay(150)
+                            withContext(Dispatchers.Main) {
+                                navController.navigate(Screen.Detail.createRoute(item.id))
+                            }
+                        }
                     }
                 )
             }

@@ -6,16 +6,18 @@ import com.example.anchor.data.local.SavedItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-interface LinkRepository {
+interface ItemRepository {
     suspend fun saveItem(item: SavedItem)
     fun getAllItems(): Flow<List<SavedItem>>
     suspend fun removeItem(item: SavedItem)
     suspend fun editItem(item: SavedItem)
+
+    fun getItemById(id: Int): Flow<SavedItem?>
 }
 
-class LinkRepositoryImpl(
+class ItemRepositoryImpl(
     private val dao: ItemDao
-) : LinkRepository {
+) : ItemRepository {
     override suspend fun saveItem(item: SavedItem) {
         dao.insert(item)
     }
@@ -29,4 +31,5 @@ class LinkRepositoryImpl(
     override suspend fun editItem(item: SavedItem) {
         dao.update(item)
     }
+    override fun getItemById(id: Int): Flow<SavedItem?> = dao.getItemById(id)
 }

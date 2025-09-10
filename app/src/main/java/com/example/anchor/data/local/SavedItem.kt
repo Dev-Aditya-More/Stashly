@@ -5,8 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "items")
 data class SavedItem(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val contentType: ContentType,
     val url: String? = null,       // for LINK
     var title: String? = null,     // optional metadata

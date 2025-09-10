@@ -2,8 +2,8 @@ package com.example.anchor.di
 
 import androidx.room.Room
 import com.example.anchor.data.local.AppDatabase
-import com.example.anchor.data.remote.LinkRepository
-import com.example.anchor.data.remote.LinkRepositoryImpl
+import com.example.anchor.data.remote.ItemRepository
+import com.example.anchor.data.remote.ItemRepositoryImpl
 import com.example.anchor.ui.viewmodels.MainViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
@@ -36,7 +36,7 @@ val appModule = module{
         }
     }
 
-    single<LinkRepository> { LinkRepositoryImpl(get()) }
+    single<ItemRepository> { ItemRepositoryImpl(get()) }
 
     viewModel { MainViewModel(get()) }
 

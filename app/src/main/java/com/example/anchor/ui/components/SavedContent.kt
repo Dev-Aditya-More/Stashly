@@ -24,7 +24,7 @@ import com.example.anchor.data.local.SavedItem
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun SharedTransitionScope.SavedContentScreen(
+fun SavedContentScreen(
     savedItems: List<SavedItem>,
     onDelete: (SavedItem) -> Unit,
     onEdit: (SavedItem) -> Unit,
@@ -50,11 +50,8 @@ fun SharedTransitionScope.SavedContentScreen(
                     exit = shrinkVertically() + fadeOut()
                 ) {
 
-                    val sharedState = rememberSharedContentState("card_${item.id}")
                     SavedItemCard(
-                        animatedVisibilityScope = this,
                         item = item,
-                        sharedContentState = sharedState,
                         onDelete = onDelete,
                         onSaveEdit = onEdit,
                         onItemClick = onItemClick

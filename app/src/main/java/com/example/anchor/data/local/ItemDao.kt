@@ -23,4 +23,8 @@ interface ItemDao {
 
     @Upsert
     suspend fun update(item: SavedItem)
+
+    @Query("SELECT * FROM items WHERE id = :id LIMIT 1")
+    fun getItemById(id: Int): Flow<SavedItem?>
+
 }

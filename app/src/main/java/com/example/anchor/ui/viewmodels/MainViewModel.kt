@@ -10,9 +10,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
-import com.example.anchor.data.remote.LinkRepository
+import com.example.anchor.data.remote.ItemRepository
 import com.example.anchor.jsoup.fetchPageTitle
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
@@ -20,7 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val repository: LinkRepository
+    private val repository: ItemRepository
 ) : ViewModel() {
 
     val items: StateFlow<List<SavedItem>> =
@@ -91,9 +92,8 @@ class MainViewModel(
             repository.removeItem(item)
         }
     }
-    fun getItemById(id: Int): SavedItem? {
-        // just search the latest value of the StateFlow
-        return items.value.find { it.id == id }
+    fun getItemById(id: Int): Flow<SavedItem?> {
+        return repository.getItemById(id)
     }
 }
 
