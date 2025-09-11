@@ -22,12 +22,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.anchor.data.local.ContentType
@@ -35,6 +38,8 @@ import com.example.anchor.data.local.SavedItem
 import com.example.anchor.ui.viewmodels.MainViewModel
 import com.example.stashly.R
 import org.koin.compose.viewmodel.koinViewModel
+import androidx.core.net.toUri
+import java.io.File
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -56,7 +61,7 @@ fun SavedItemCard(
             .fillMaxWidth()
             .clickable { onItemClick(item) },
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(8.dp)
+        elevation = CardDefaults.cardElevation(8.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             if (isEditing) {
@@ -91,10 +96,15 @@ fun SavedItemCard(
                         Spacer(Modifier.height(8.dp))
 
                         Text(
-                            text = if (editedPath.isNotEmpty()) "Selected: $editedPath" else "No file chosen",
+                            text = if (editedPath.isNotEmpty()) {
+                                "Selected: ${getReadableFileName(editedPath)}"
+                            } else {
+                                "No file chosen"
+                            },
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
+
 
                         ReplaceFileButton(
                             onFileReplaced = { uri, fileName ->
@@ -158,20 +168,36 @@ fun SavedItemCard(
                     }
 
                     ContentType.FILE -> {
+                        val fileName = getReadableFileName(item.filePath)
+                        val fileExt = getFileExtension(item.filePath)
+                        val fileSize = getFileSize(item.filePath) // e.g., "2.1 MB"
+
+                        // File title (name shown big)
                         Text(
-                            text = item.title ?: "File",
-                            style = MaterialTheme.typography.bodyLarge
+                            text = item.title ?: fileName,
+                            style = MaterialTheme.typography.titleMedium,
                         )
-                        item.filePath?.let {
+
+                        // File details row (icon + type + size)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_file),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(Modifier.width(6.dp))
                             Text(
-                                text = it,
+                                text = buildString {
+                                    if (fileExt.isNotEmpty()) append(".$fileExt file")
+                                    if (fileSize.isNotEmpty()) append(" • $fileSize")
+                                },
                                 style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
                     }
-
                 }
 
                 Spacer(Modifier.height(8.dp))
@@ -193,5 +219,29 @@ fun SavedItemCard(
                 }
             }
         }
+    }
+}
+
+fun getReadableFileName(path: String?): String {
+    if (path.isNullOrEmpty()) return "Unknown file"
+    return path.toUri().lastPathSegment
+        ?.substringAfterLast("/") ?: path
+}
+
+fun getFileExtension(path: String?): String {
+    if (path.isNullOrEmpty()) return ""
+    return path.substringAfterLast('.', "")
+}
+
+@Composable
+fun getFileSize(path: String?): String {
+    if (path.isNullOrEmpty()) return "0L"
+    val context = LocalContext.current
+    return try {
+        val file = File(context.cacheDir, path.toUri().lastPathSegment ?: "tempFile")
+        file.length().toString()
+    } catch (e: Exception) {
+        Text("File Not found")
+        ""
     }
 }

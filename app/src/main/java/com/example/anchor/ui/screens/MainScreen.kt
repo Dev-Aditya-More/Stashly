@@ -44,8 +44,7 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
 
     Scaffold(
         modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .fillMaxSize(),
 
         topBar = {
             StashlyAppBar()
@@ -114,9 +113,6 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                                 text = ""
                             }
 
-                            else -> {
-                                isError = true
-                            }
                         }
                     }
                 },

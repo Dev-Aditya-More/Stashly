@@ -11,5 +11,7 @@ data class SavedItem(
     var title: String? = null,     // optional metadata
     val text: String? = null,      // for TEXT snippets
     val filePath: String? = null,  // local storage reference for FILE
+    val logoUrl: String? = null,
+    val linkPreview: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )

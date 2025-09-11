@@ -11,7 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import com.example.anchor.data.remote.ItemRepository
-import com.example.anchor.jsoup.fetchPageTitle
+import com.example.anchor.jsoup.fetchLinkPreview
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -33,26 +33,24 @@ class MainViewModel(
     fun saveLink(urlItem: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val title = fetchPageTitle(urlItem.url)
+                val preview = fetchLinkPreview(urlItem.url ?: "")
                 repository.saveItem(
-                    SavedItem(
-                        url = urlItem.url,
-                        title = title ?: "Untitled",
-                        contentType = ContentType.LINK
+                    urlItem.copy(
+                        title = preview?.title ?: "Untitled",
+                        text = preview?.description,
+                        linkPreview = preview?.imageUrl,
                     )
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
                 repository.saveItem(
-                    SavedItem(
-                        url = urlItem.url,
-                        title = "Untitled",
-                        contentType = ContentType.LINK
-                    )
+                    urlItem.copy(title = "Untitled")
                 )
             }
         }
     }
+
+
     fun saveText(text: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
 
@@ -98,15 +96,40 @@ class MainViewModel(
 }
 
 fun generateTempTitle(text: String?, wordLimit: Int = 4): String {
-    val words = text?.trim()?.split("\\s+".toRegex())
-    return words?.size?.let {
-        if (it <= wordLimit) {
-            text
-        } else {
-            words.take(wordLimit)?.joinToString(" ") + "..."
-        }
-    }.toString()
+    if (text.isNullOrBlank()) return "Untitled note"
+
+    val cleaned = text
+        .trim()
+        .replace("\n", " ")       // remove newlines
+        .replace("\\s+".toRegex(), " ") // collapse spaces
+
+    // --- Context-aware rules ---
+
+    if (cleaned.startsWith("-") || cleaned.startsWith("•") || cleaned.startsWith("1.")) {
+        return "Checklist"
+    }
+
+    if (cleaned.contains("fun ") || cleaned.contains("class ") || cleaned.contains("{")) {
+        return "Code snippet"
+    }
+
+    val dateRegex = "\\d{4}-\\d{2}-\\d{2}".toRegex()
+    if (dateRegex.containsMatchIn(cleaned) || cleaned.contains("tomorrow", ignoreCase = true)) {
+        return "Reminder"
+    }
+
+    if (cleaned.length <= 40) return cleaned
+
+    val words = cleaned.split(" ")
+    val base = if (words.size <= wordLimit) {
+        cleaned
+    } else {
+        words.take(wordLimit).joinToString(" ") + "..."
+    }
+
+    return base
 }
+
 
 fun getFileName(context: Context, uri: Uri): String {
     var name: String? = null

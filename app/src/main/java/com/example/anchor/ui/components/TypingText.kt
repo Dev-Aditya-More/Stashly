@@ -8,13 +8,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import kotlinx.coroutines.delay
 
 @Composable
 fun TypingText(
     fullText: String,
-    typingSpeed: Long = 50L // ms per character
+    modifier: Modifier = Modifier,
+    typingSpeed: Long = 50L
 ) {
     var text by remember { mutableStateOf("") }
     LaunchedEffect(fullText) {
@@ -27,8 +29,9 @@ fun TypingText(
 
     Text(
         text = text,
+        modifier = modifier,
         style = MaterialTheme.typography.bodyLarge,
         maxLines = 1,
-        overflow = TextOverflow.Ellipsis
+        overflow = TextOverflow.Ellipsis,
     )
 }

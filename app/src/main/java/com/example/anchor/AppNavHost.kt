@@ -87,10 +87,10 @@ fun AppNavHost(navController: NavHostController) {
                     else -> {
                         DetailScreen(
                             item = item!!,
-                            onEdit = {
-                                viewModel.editItem(item!!)
+                            onToggleFavorite = {
+
                             },
-                            onDelete = { viewModel.removeItem(item!!) }
+                            onBack = { navController.popBackStack() }
                         )
                     }
                 }

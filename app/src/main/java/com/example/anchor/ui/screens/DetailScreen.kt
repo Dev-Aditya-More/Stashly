@@ -1,14 +1,14 @@
 package com.example.anchor.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import android.content.Intent
+import android.net.Uri
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
@@ -16,121 +16,289 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
-
+import androidx.core.net.toUri
+import com.example.anchor.ui.components.getFileSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
     item: SavedItem,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onToggleFavorite: () -> Unit,
+    onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    val clipboard = LocalClipboardManager.current
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Details") },
                 actions = {
-                    IconButton(onClick = onEdit) {
-                        Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    IconButton(
+                        onClick = onToggleFavorite,
+                        modifier = Modifier.padding(end = 15.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.StarBorder,
+                            contentDescription = "Favourite"
+                        )
                     }
-                    IconButton(onClick = onDelete) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         }
     ) { paddingValues ->
-        Card(
+        Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(16.dp)
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Title
-                Text(
-                    text = item.title ?: item.contentType.name,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+            // Title
+            Text(
+                text = item.title ?: item.contentType.name,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
 
-                // Content
-                when (item.contentType) {
-                    ContentType.TEXT -> {
-                        Text(
-                            text = item.text ?: "No text available",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+            when (item.contentType) {
+                // ---------------- TEXT ----------------
+                ContentType.TEXT -> {
+                    Card(
+                        shape = RoundedCornerShape(28.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
                         )
-                        ActionRow(
-                            actions = listOf(
-                                Action("Copy", Icons.Default.ContentCopy) { /* Copy text */ },
-                                Action("Share", Icons.Default.Share) { /* Share text */ }
+                    ) {
+                        Column(modifier = Modifier.padding(20.dp)) {
+                            Text(
+                                text = item.text ?: "No text available",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
                             )
-                        )
+                        }
                     }
 
-                    ContentType.LINK -> {
-                        Text(
-                            text = item.url ?: "No link available",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                color = MaterialTheme.colorScheme.primary
-                            ),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
+                    // Actions
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        AssistChip(
+                            onClick = {
+                                item.text?.let {
+                                    clipboard.setText(AnnotatedString(it))
+                                    Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            label = { Text("Copy") },
+                            leadingIcon = { Icon(Icons.Default.ContentCopy, null) }
                         )
-                        ActionRow(
-                            actions = listOf(
-                                Action("", Icons.AutoMirrored.Filled.OpenInNew) { /* Open in browser */ },
-                                Action("", Icons.Default.ContentCopy) { /* Copy link */ },
-                                Action("", Icons.Default.Share) { /* Share link */ }
-                            )
+                        AssistChip(
+                            onClick = {
+                                item.text?.let {
+                                    val intent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(Intent.EXTRA_TEXT, it)
+                                    }
+                                    context.startActivity(Intent.createChooser(intent, "Share via"))
+                                }
+                            },
+                            label = { Text("Share") },
+                            leadingIcon = { Icon(Icons.Default.Share, null) }
                         )
                     }
+                }
 
-                    ContentType.FILE -> {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                // ---------------- LINK ----------------
+                ContentType.LINK -> {
+                    Card(
+                        shape = RoundedCornerShape(28.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        )
+                    ) {
+                        Column {
+                            // Banner preview image
+                            item.linkPreview?.let { imageUrl ->
+                                AsyncImage(
+                                    model = imageUrl,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp)
+                                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = item.title ?: item.url ?: "Untitled",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                                item.text?.let {
+                                    Text(
+                                        text = it,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    // Actions
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        AssistChip(
+                            onClick = {
+                                item.url?.let {
+                                    val intent = Intent(Intent.ACTION_VIEW, it.toUri())
+                                    context.startActivity(intent)
+                                }
+                            },
+                            label = { Text("Open") },
+                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.OpenInNew, null) }
+                        )
+                        AssistChip(
+                            onClick = {
+                                item.url?.let {
+                                    clipboard.setText(AnnotatedString(it))
+                                    Toast.makeText(context, "Link copied!", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            label = { Text("Copy") },
+                            leadingIcon = { Icon(Icons.Default.ContentCopy, null) }
+                        )
+                        AssistChip(
+                            onClick = {
+                                item.url?.let {
+                                    val intent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(Intent.EXTRA_TEXT, it)
+                                    }
+                                    context.startActivity(Intent.createChooser(intent, "Share link via"))
+                                }
+                            },
+                            label = { Text("Share") },
+                            leadingIcon = { Icon(Icons.Default.Share, null) }
+                        )
+                    }
+                }
+
+                // ---------------- FILE ----------------
+                ContentType.FILE -> {
+                    val fileSize = getFileSize(item.filePath)
+                    Card(
+                        shape = RoundedCornerShape(28.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Icon(
                                 Icons.Default.Description,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary
+                                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                modifier = Modifier.size(40.dp)
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = item.filePath?.substringAfterLast("/") ?: "Unknown file",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                                )
+                                Text(
+                                    text = "File",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(25.dp))
+
                             Text(
-                                text = item.filePath?.substringAfterLast("/") ?: "No file path",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                text = buildString {
+                                    if (fileSize.isNotEmpty()) append(" • $fileSize")
+                                },
+                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
+
+                            Log.d("FILESIZE", fileSize.toString())
                         }
-                        ActionRow(
-                            actions = listOf(
-                                Action("", Icons.Default.FolderOpen) { /* Open file */ },
-                                Action("", Icons.Default.ContentCopy) { /* Copy file path */ },
-                                Action("", Icons.Default.Share) { /* Share file */ }
-                            )
+                    }
+
+                    // Actions
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        AssistChip(
+                            onClick = {
+                                item.filePath?.let {
+                                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                                        setDataAndType(it.toUri(), "*/*")
+                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    }
+                                    context.startActivity(intent)
+                                }
+                            },
+                            label = { Text("Open") },
+                            leadingIcon = { Icon(Icons.Default.FolderOpen, null) }
+                        )
+                        AssistChip(
+                            onClick = {
+                                item.filePath?.let {
+                                    clipboard.setText(AnnotatedString(it))
+                                    Toast.makeText(context, "Path copied!", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            label = { Text("Copy") },
+                            leadingIcon = { Icon(Icons.Default.ContentCopy, null) }
+                        )
+                        AssistChip(
+                            onClick = {
+                                item.filePath?.let {
+                                    val intent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "*/*"
+                                        putExtra(Intent.EXTRA_STREAM, it.toUri())
+                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    }
+                                    context.startActivity(Intent.createChooser(intent, "Share file via"))
+                                }
+                            },
+                            label = { Text("Share") },
+                            leadingIcon = { Icon(Icons.Default.Share, null) }
                         )
                     }
                 }
@@ -138,6 +306,7 @@ fun DetailScreen(
         }
     }
 }
+
 
 // Helper composable for buttons
 @Composable
@@ -152,8 +321,6 @@ fun ActionRow(actions: List<Action>) {
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(action.icon, contentDescription = null)
-                Spacer(Modifier.width(6.dp))
-                Text(action.label)
             }
         }
     }

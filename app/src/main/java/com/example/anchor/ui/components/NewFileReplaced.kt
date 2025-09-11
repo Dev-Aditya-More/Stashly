@@ -11,10 +11,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.anchor.ui.viewmodels.getFileName
@@ -38,7 +40,8 @@ fun ReplaceFileButton(
     Button(
         onClick = { filePickerLauncher.launch("image/*") },
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.buttonColors(Color(20, 36, 49))
     ) {
         Icon(
             imageVector = Icons.Default.Refresh,
