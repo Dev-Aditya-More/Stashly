@@ -1,5 +1,6 @@
 package com.example.anchor.ui.screens
 
+import com.example.stashly.R
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -35,7 +36,6 @@ import coil.compose.AsyncImage
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import androidx.core.net.toUri
-import com.example.anchor.ui.components.getFileSize
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,6 +56,10 @@ fun DetailScreen(
                         onClick = onToggleFavorite,
                         modifier = Modifier.padding(end = 15.dp)
                     ) {
+                        if (item.isFavorite) Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = "Favourite"
+                        ) else
                         Icon(
                             imageVector = Icons.Default.StarBorder,
                             contentDescription = "Favourite"
@@ -142,7 +146,7 @@ fun DetailScreen(
                         )
                     ) {
                         Column {
-                            // Banner preview image
+                            // Large banner preview
                             item.linkPreview?.let { imageUrl ->
                                 AsyncImage(
                                     model = imageUrl,
@@ -156,22 +160,40 @@ fun DetailScreen(
                             }
 
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = item.title ?: item.url ?: "Untitled",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    // Small favicon
+                                    AsyncImage(
+                                        model = item.faviconUrl ?: R.drawable.ic_link,
+                                        contentDescription = "Favicon",
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                    )
+
+                                    Spacer(Modifier.width(8.dp))
+
+                                    Text(
+                                        text = item.title ?: item.url ?: "Untitled",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+
                                 item.text?.let {
                                     Text(
-                                        text = it,
+                                        text = item.text,
                                         style = MaterialTheme.typography.bodySmall,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f)
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
+                                        modifier = Modifier.padding(top = 4.dp)
                                     )
                                 }
                             }
                         }
+
                     }
 
                     // Actions
@@ -214,7 +236,6 @@ fun DetailScreen(
 
                 // ---------------- FILE ----------------
                 ContentType.FILE -> {
-                    val fileSize = getFileSize(item.filePath)
                     Card(
                         shape = RoundedCornerShape(28.dp),
                         modifier = Modifier.fillMaxWidth(),
@@ -245,19 +266,6 @@ fun DetailScreen(
                                     color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
                                 )
                             }
-
-                            Spacer(modifier = Modifier.width(25.dp))
-
-                            Text(
-                                text = buildString {
-                                    if (fileSize.isNotEmpty()) append(" • $fileSize")
-                                },
-                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-
-                            Log.d("FILESIZE", fileSize.toString())
                         }
                     }
 
@@ -302,25 +310,6 @@ fun DetailScreen(
                         )
                     }
                 }
-            }
-        }
-    }
-}
-
-
-// Helper composable for buttons
-@Composable
-fun ActionRow(actions: List<Action>) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        actions.forEach { action ->
-            OutlinedButton(
-                onClick = action.onClick,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(action.icon, contentDescription = null)
             }
         }
     }

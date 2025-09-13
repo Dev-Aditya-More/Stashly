@@ -15,6 +15,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.example.anchor.Screen
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
@@ -22,8 +24,10 @@ import com.example.anchor.ui.components.InputField
 import com.example.anchor.ui.components.LottieAnimationExample
 import com.example.anchor.ui.components.SavedContentScreen
 import com.example.anchor.ui.components.StashlyAppBar
+import com.example.anchor.ui.components.StashlyBottomBar
 import com.example.anchor.ui.components.UploadFileField
 import com.example.anchor.ui.viewmodels.MainViewModel
+import com.example.anchor.utils.autoCorrectUrl
 import com.example.anchor.utils.classifyInput
 import com.example.anchor.utils.normalizeUrl
 import kotlinx.coroutines.Dispatchers
@@ -43,13 +47,11 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize(),
-
-        topBar = {
-            StashlyAppBar()
-        }
+        modifier = Modifier.fillMaxSize(),
+        topBar = { StashlyAppBar() },
+        bottomBar = { StashlyBottomBar(navController) }
     ) { paddingValues ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -63,41 +65,25 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                     isError = false
                 },
                 onSaveClick = {
-
                     scope.launch {
                         val type = withContext(Dispatchers.Default) { classifyInput(text) }
-
                         when (type) {
                             ContentType.LINK -> {
                                 val normalized = normalizeUrl(text)
-                                if (isValidUrl(normalized)) {
-                                    viewModel.saveLink(
-                                        SavedItem(
-                                            url = normalized,
-                                            contentType = ContentType.LINK
-                                        )
-                                    )
+                                val corrected = autoCorrectUrl(normalized)
+                                if (isValidUrl(corrected)) {
+                                    viewModel.saveLink(SavedItem(url = corrected, contentType = ContentType.LINK))
                                     text = ""
-                                } else {
-                                    isError = true
-                                }
+                                } else isError = true
                             }
-
                             ContentType.TEXT -> {
-
-                                if(text.isBlank()){
+                                if (text.isBlank()) {
                                     isError = true
-                                }else {
-                                    viewModel.saveText(
-                                        SavedItem(
-                                            text = text,
-                                            contentType = ContentType.TEXT
-                                        )
-                                    )
+                                } else {
+                                    viewModel.saveText(SavedItem(text = text, contentType = ContentType.TEXT))
                                 }
                                 text = ""
                             }
-
                             ContentType.FILE -> {
                                 val uri = text.toUri()
                                 val fileName = uri.lastPathSegment ?: "File"
@@ -106,18 +92,16 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                                         contentType = ContentType.FILE,
                                         title = fileName,
                                         filePath = text
-                                    ),
-                                    context
-
+                                    ), context
                                 )
                                 text = ""
                             }
-
                         }
                     }
                 },
                 isError = isError
             )
+
             if (isError) {
                 Text(
                     "please enter it properly",
@@ -126,58 +110,38 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
+
             Spacer(Modifier.height(8.dp))
-
-            Text(
-                "or",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-
+            Text("or", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(8.dp))
 
             UploadFileField(
                 modifier = Modifier.fillMaxWidth(),
                 onFilePicked = { uri, context ->
                     val fileName = uri.lastPathSegment ?: "File"
-                    val newItem = SavedItem(
-                        contentType = ContentType.FILE,
-                        title = fileName,
-                        filePath = uri.toString()
-                    )
-                    viewModel.saveFile(
-                        SavedItem(
-                            contentType = ContentType.FILE,
-                            title = newItem.title,
-                            filePath = newItem.filePath
-                        ),
-                        context
-                    )
+                    viewModel.saveFile(SavedItem(contentType = ContentType.FILE, title = fileName, filePath = uri.toString()), context)
                 }
             )
 
             Spacer(Modifier.height(16.dp))
 
-            if(items.isEmpty()){
-
+            if (items.isEmpty()) {
                 LottieAnimationExample(
-                   modifier = Modifier
-                       .size(300.dp)
-                       .padding(top = 50.dp),
+                    modifier = Modifier.size(300.dp).padding(top = 50.dp),
                 )
-            }
-            else {
+            } else {
                 SavedContentScreen(
                     savedItems = items,
                     onDelete = { savedItem -> viewModel.removeItem(savedItem) },
                     onEdit = { savedItem -> viewModel.editItem(savedItem) },
                     onItemClick = { item ->
                         coroutineScope.launch {
-                            delay(150)
-                            withContext(Dispatchers.Main) {
-                                navController.navigate(Screen.Detail.createRoute(item.id))
-                            }
+                            navController.navigate(Screen.Detail.createRoute(item.id))
+                        }
+                    },
+                    onSeeMore = {
+                        coroutineScope.launch {
+                            navController.navigate(Screen.Items.route)
                         }
                     }
                 )
@@ -185,4 +149,3 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
         }
     }
 }
-

@@ -25,10 +25,18 @@ class MainViewModel(
 ) : ViewModel() {
 
     val items: StateFlow<List<SavedItem>> =
-
         repository.getAllItems()
-            .flowOn(Dispatchers.IO)
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    val favourites: StateFlow<List<SavedItem>> =
+        repository.getFavourites()
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    fun toggleFavourite(item: SavedItem) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.toggleFavourite(item.id, !item.isFavorite)
+        }
+    }
 
     fun saveLink(urlItem: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -39,43 +47,38 @@ class MainViewModel(
                         title = preview?.title ?: "Untitled",
                         text = preview?.description,
                         linkPreview = preview?.imageUrl,
+                        faviconUrl = preview?.faviconUrl
                     )
                 )
             } catch (e: Exception) {
-                e.printStackTrace()
-                repository.saveItem(
-                    urlItem.copy(title = "Untitled")
-                )
+                repository.saveItem(urlItem.copy(title = "Untitled"))
             }
         }
     }
 
-
     fun saveText(text: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
-
             val title = generateTempTitle(text.text)
-            val item = SavedItem(
-                title = title ?: "Untitled",
-                text = text.text,
-                contentType = ContentType.TEXT
+            repository.saveItem(
+                SavedItem(
+                    title = title,
+                    text = text.text,
+                    contentType = ContentType.TEXT
+                )
             )
-            repository.saveItem(item)
         }
     }
 
     fun saveFile(fileItem: SavedItem, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             val uri = fileItem.filePath?.toUri()
-            val fileName = uri?.let { getFileName(context,it) } ?: "File"
-
-            val item = SavedItem(
-                filePath = fileItem.filePath,
-                title = fileName,
-                contentType = ContentType.FILE
+            val fileName = uri?.let { getFileName(context, it) } ?: "File"
+            repository.saveItem(
+                fileItem.copy(
+                    title = fileName,
+                    contentType = ContentType.FILE
+                )
             )
-
-            repository.saveItem(item)
         }
     }
 
@@ -90,9 +93,8 @@ class MainViewModel(
             repository.removeItem(item)
         }
     }
-    fun getItemById(id: Int): Flow<SavedItem?> {
-        return repository.getItemById(id)
-    }
+
+    fun getItemById(id: Int): Flow<SavedItem?> = repository.getItemById(id)
 }
 
 fun generateTempTitle(text: String?, wordLimit: Int = 4): String {

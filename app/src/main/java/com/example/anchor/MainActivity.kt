@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
             AnchorTheme {
 
                 AppNavHost(
-                    navController = rememberNavController(),
+                    navController = rememberNavController()
                 )
             }
         }
@@ -127,7 +127,7 @@ fun TypingText2(text: String, delayMillis: Long = 100) {
 
     Text(
         text = displayedText,
-        color = Color.Black.copy(alpha = 0.9f),
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.9f),
         fontWeight = FontWeight.Bold,
         fontSize = 42.sp,
         letterSpacing = 2.sp

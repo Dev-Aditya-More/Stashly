@@ -13,5 +13,8 @@ data class SavedItem(
     val filePath: String? = null,  // local storage reference for FILE
     val logoUrl: String? = null,
     val linkPreview: String? = null,
+    val faviconUrl: String? = null,
+    val isFavorite: Boolean = false,
+    val updatedAt: Long = System.currentTimeMillis(),
     val createdAt: Long = System.currentTimeMillis()
 )
