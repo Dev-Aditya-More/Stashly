@@ -51,7 +51,7 @@ fun InputField(
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
-                placeholder = { Text("Enter URL, text or note...") },
+                placeholder = { Text("Enter URL, text or note...\n" + "\n") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),

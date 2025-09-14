@@ -1,24 +1,12 @@
 package com.example.anchor.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,7 +24,12 @@ fun SavedContentScreen(
     onItemClick: (SavedItem) -> Unit,
     onSeeMore: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        // Header Row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -44,7 +37,7 @@ fun SavedContentScreen(
         ) {
             Text(
                 text = "Recently Saved",
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
             )
             if (savedItems.size > 2) {
                 TextButton(onClick = onSeeMore) {
@@ -53,13 +46,13 @@ fun SavedContentScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(10.dp))
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(top = 8.dp)
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Show only first 2 items
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items(savedItems.take(2), key = { it.id }) { item ->
+            savedItems.take(2).forEach { item ->
                 SavedItemCard(
                     item = item,
                     onDelete = onDelete,

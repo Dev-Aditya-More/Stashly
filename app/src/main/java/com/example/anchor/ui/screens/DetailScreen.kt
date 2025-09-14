@@ -2,10 +2,7 @@ package com.example.anchor.ui.screens
 
 import com.example.stashly.R
 import android.content.Intent
-import android.net.Uri
-import android.util.Log
 import android.widget.Toast
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -36,6 +32,7 @@ import coil.compose.AsyncImage
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import androidx.core.net.toUri
+import com.example.anchor.ui.components.ExpandableText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -182,14 +179,7 @@ fun DetailScreen(
                                 }
 
                                 item.text?.let {
-                                    Text(
-                                        text = item.text,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
-                                        modifier = Modifier.padding(top = 4.dp)
-                                    )
+                                    ExpandableText(text = it)
                                 }
                             }
                         }

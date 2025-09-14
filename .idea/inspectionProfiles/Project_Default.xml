@@ -1,93 +1,6 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
-    <inspection_tool class="AndroidLintArcAnimationSpecTypeIssue" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintAutoboxingStateCreation" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintAutoboxingStateValueProperty" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintComposableDestinationInComposeScope" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintComposableLambdaParameterNaming" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="AndroidLintComposableLambdaParameterPosition" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="AndroidLintComposableNaming" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintComposableNavGraphInComposeScope" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintCompositionLocalNaming" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintConfigurationScreenWidthHeight" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintConstantContentStateKeyInItemsCall" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintContextCastToActivity" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintCoroutineCreationDuringComposition" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintDeepLinkInActivityDestination" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintDetachAndAttachSameFragment" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintDialogFragmentCallbacksDetector" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintEmptyNavDeepLink" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintExperimentalAnnotationRetention" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintFlowOperatorInvokedInComposition" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintFragmentAddMenuProvider" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintFragmentBackPressedCallback" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintFragmentLiveDataObserve" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintFragmentTagUsage" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintFrequentlyChangingValue" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintInvalidColorHexValue" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintInvalidFragmentVersionForActivityResult" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintInvalidLanguageTagDelimiter" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintInvalidUseOfOnBackPressed" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintLaunchDuringComposition" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintLifecycleCurrentStateInComposition" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintLocalContextConfigurationRead" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintLocalContextResourcesRead" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintMissingColorAlphaChannel" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintMissingKeepAnnotation" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintMissingSerializableAnnotation" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintModifierFactoryExtensionFunction" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintModifierFactoryReturnType" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintModifierFactoryUnreferencedReceiver" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintModifierNodeInspectableProperties" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintModifierParameter" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintMultipleAwaitPointerEventScopes" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintMutableCollectionMutableState" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintNoCollectCallFound" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintNullSafeMutableLiveData" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintOpaqueUnitKey" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintProduceStateDoesNotAssignValue" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintRememberInComposition" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintRememberReturnType" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintRememberSaveableSaverParameter" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintRepeatOnLifecycleWrongUsage" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintReturnFromAwaitPointerEventScope" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintStateFlowValueCalledInComposition" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintSuspiciousCompositionLocalModifierRead" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintSuspiciousModifierThen" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintTestManifestGradleConfiguration" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnnecessaryComposedModifier" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnrememberedGetBackStackEntry" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnrememberedMutableState" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnsafeLifecycleWhenUsage" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnsafeOptInUsageError" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnsafeOptInUsageWarning" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnsafeRepeatOnLifecycleDetector" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnusedBoxWithConstraintsScope" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnusedContentLambdaTargetStateParameter" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnusedCrossfadeTargetStateParameter" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnusedMaterial3ScaffoldPaddingParameter" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnusedSharedTransitionModifierParameter" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnusedTargetStateInContentKeyLambda" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUnusedTransitionTargetStateParameter" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseAndroidAlpha" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseAppTint" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseCompatLoadingForColorStateLists" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseCompatLoadingForDrawables" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseCompatTextViewDrawableApis" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseCompatTextViewDrawableXml" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseGetLayoutInflater" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseOfNonLambdaOffsetOverload" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseRequireInsteadOfGet" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseSupportActionBar" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseSwitchCompatOrMaterialCode" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUseSwitchCompatOrMaterialXml" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUsingMaterialAndMaterial3Libraries" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintUsingOnClickInXml" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintViewModelConstructorInComposable" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintWrongNavigateRouteType" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintWrongRequiresOptIn" enabled="true" level="ERROR" enabled_by_default="true" />
-    <inspection_tool class="AndroidLintWrongStartDestinationType" enabled="true" level="ERROR" enabled_by_default="true" />
     <inspection_tool class="ComposePreviewDimensionRespectsLimit" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="composableFile" value="true" />
       <option name="previewFile" value="true" />
@@ -144,6 +57,5 @@
       <option name="composableFile" value="true" />
       <option name="previewFile" value="true" />
     </inspection_tool>
-    <inspection_tool class="VirtualCallInCtorOrDtor" enabled="true" level="WARNING" enabled_by_default="true" />
   </profile>
 </component>
