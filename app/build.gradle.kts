@@ -18,8 +18,8 @@ android {
         applicationId = "com.example.stashly"
         minSdk = 25
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 4
+        versionName = "1.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -133,8 +133,7 @@ dependencies {
     implementation(libs.moshi.kotlin)
 
     implementation(libs.lottie.compose)
-
-
+    implementation(libs.accompanist.systemuicontroller)
 }
 
 java {

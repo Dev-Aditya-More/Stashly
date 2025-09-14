@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,7 +29,8 @@ fun SavedContentScreen(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp)
+            .padding(top = 10.dp)
     ) {
         // Header Row
         Row(
@@ -48,11 +51,11 @@ fun SavedContentScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Show only first 2 items
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            savedItems.take(2).forEach { item ->
+            items(savedItems.take(2)) { item ->
                 SavedItemCard(
                     item = item,
                     onDelete = onDelete,
@@ -61,6 +64,7 @@ fun SavedContentScreen(
                 )
             }
         }
+
     }
 }
 
