@@ -3,6 +3,7 @@ package com.example.anchor.ui.screens
 import com.example.stashly.R
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,6 +26,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -144,9 +146,19 @@ fun DetailScreen(
                     ) {
                         Column {
                             // Large banner preview
-                            item.linkPreview?.let { imageUrl ->
+                            if(item.linkPreview != null) {
                                 AsyncImage(
-                                    model = imageUrl,
+                                    model = item.linkPreview,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp)
+                                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }else{
+                                Image(
+                                    painter = painterResource(id = R.drawable.nopreview),
                                     contentDescription = null,
                                     modifier = Modifier
                                         .fillMaxWidth()

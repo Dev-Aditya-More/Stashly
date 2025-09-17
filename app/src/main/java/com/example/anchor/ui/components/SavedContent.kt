@@ -42,7 +42,7 @@ fun SavedContentScreen(
                 text = "Recently Saved",
                 style = MaterialTheme.typography.titleMedium,
             )
-            if (savedItems.size > 2) {
+            if (savedItems.size > 1) {
                 TextButton(onClick = onSeeMore) {
                     Text("See more")
                 }
@@ -55,7 +55,7 @@ fun SavedContentScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(savedItems.take(2)) { item ->
+            items(savedItems.take(1)) { item ->
                 SavedItemCard(
                     item = item,
                     onDelete = onDelete,

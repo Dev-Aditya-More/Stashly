@@ -1,22 +1,21 @@
 package com.example.anchor.ui.viewmodels
 
-import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.anchor.data.local.Bookmark
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import com.example.anchor.data.remote.ItemRepository
+import com.example.anchor.jsoup.fetchBookmarkMetadata
 import com.example.anchor.jsoup.fetchLinkPreview
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -82,6 +81,31 @@ class MainViewModel(
         }
     }
 
+    fun saveBookmark(url: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val metadata = fetchBookmarkMetadata(url)
+                val bookmark = Bookmark(
+                    url = url,
+                    title = metadata?.title,
+                    description = metadata?.description,
+                    faviconUrl = metadata?.faviconUrl,
+                    previewImage = metadata?.previewImage
+                )
+                repository.saveItem(bookmark.toSavedItem())
+            } catch (_: Exception) {
+                repository.saveItem(
+                    SavedItem(
+                        contentType = ContentType.LINK,
+                        url = url,
+                        title = "Untitled"
+                    )
+                )
+            }
+        }
+    }
+
+
     fun editItem(item: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.editItem(item)
@@ -145,4 +169,15 @@ fun getFileName(context: Context, uri: Uri): String {
         }
     }
     return name ?: uri.lastPathSegment ?: "File"
+}
+
+fun Bookmark.toSavedItem(): SavedItem {
+    return SavedItem(
+        contentType = ContentType.LINK,
+        url = this.url,
+        title = this.title ?: "Untitled",
+        text = this.description,
+        faviconUrl = this.faviconUrl,
+        linkPreview = this.previewImage
+    )
 }

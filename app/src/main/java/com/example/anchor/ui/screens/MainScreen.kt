@@ -5,6 +5,8 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,8 +20,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.anchor.Screen
+import com.example.anchor.data.local.Bookmark
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
+import com.example.anchor.ui.components.AddBookmarkSheet
 import com.example.anchor.ui.components.InputField
 import com.example.anchor.ui.components.LottieAnimationExample
 import com.example.anchor.ui.components.SavedContentScreen
@@ -34,6 +38,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jsoup.Jsoup
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
@@ -45,11 +50,21 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    var showAddBookmarkSheet by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { StashlyAppBar() },
-        bottomBar = { StashlyBottomBar(navController) }
+        bottomBar = { StashlyBottomBar(navController) },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showAddBookmarkSheet = true },
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Bookmark")
+            }
+        }
     ) { paddingValues ->
 
         Column(
@@ -146,6 +161,32 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                     }
                 )
             }
+
+            if (showAddBookmarkSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showAddBookmarkSheet = false }
+                ) {
+                    AddBookmarkSheet(
+                        onSave = { url, metadata ->
+                            val normalized = normalizeUrl(url)
+                            val corrected = autoCorrectUrl(normalized)
+                            if (isValidUrl(corrected)) {
+                                val bookmark = Bookmark(
+                                    url = corrected,
+                                    title = metadata?.title,
+                                    description = metadata?.description,
+                                    faviconUrl = metadata?.faviconUrl,
+                                    previewImage = metadata?.previewImage // optional, if you fetch og:image
+                                )
+                                viewModel.saveBookmark(bookmark.url)
+                                showAddBookmarkSheet = false
+                            }
+                        },
+                        onDismiss = { showAddBookmarkSheet = false }
+                    )
+                }
+            }
+
         }
     }
 }
