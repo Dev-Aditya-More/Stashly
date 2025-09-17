@@ -138,45 +138,33 @@ fun DetailScreen(
                 // ---------------- LINK ----------------
                 ContentType.LINK -> {
                     Card(
-                        shape = RoundedCornerShape(28.dp),
+                        shape = RoundedCornerShape(20.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
-                        )
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
                         Column {
                             // Large banner preview
-                            if(item.linkPreview != null) {
-                                AsyncImage(
-                                    model = item.linkPreview,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
-                                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }else{
-                                Image(
-                                    painter = painterResource(id = R.drawable.nopreview),
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(200.dp)
-                                        .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
+                            AsyncImage(
+                                model = item.linkPreview ?: R.drawable.nopreview,
+                                contentDescription = "Preview",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(180.dp)
+                                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+                                contentScale = ContentScale.Crop
+                            )
 
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    // Small favicon
                                     AsyncImage(
                                         model = item.faviconUrl ?: R.drawable.ic_link,
                                         contentDescription = "Favicon",
                                         modifier = Modifier
-                                            .size(20.dp)
-                                            .clip(RoundedCornerShape(8.dp))
+                                            .size(24.dp)
+                                            .clip(RoundedCornerShape(6.dp))
                                     )
 
                                     Spacer(Modifier.width(8.dp))
@@ -184,39 +172,32 @@ fun DetailScreen(
                                     Text(
                                         text = item.title ?: item.url ?: "Untitled",
                                         style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                                         maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
+                                        overflow = TextOverflow.Ellipsis,
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
 
+                                Spacer(Modifier.height(8.dp))
+
+                                // Description / notes
                                 item.text?.let {
                                     ExpandableText(text = it)
                                 }
                             }
                         }
-
                     }
 
-                    // Actions
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Spacer(Modifier.height(12.dp))
+
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         AssistChip(
-                            onClick = {
-                                item.url?.let {
-                                    val intent = Intent(Intent.ACTION_VIEW, it.toUri())
-                                    context.startActivity(intent)
-                                }
-                            },
+                            onClick = { item.url?.let { context.startActivity(Intent(Intent.ACTION_VIEW, it.toUri())) } },
                             label = { Text("Open") },
                             leadingIcon = { Icon(Icons.AutoMirrored.Filled.OpenInNew, null) }
                         )
                         AssistChip(
-                            onClick = {
-                                item.url?.let {
-                                    clipboard.setText(AnnotatedString(it))
-                                    Toast.makeText(context, "Link copied!", Toast.LENGTH_SHORT).show()
-                                }
-                            },
+                            onClick = { item.url?.let { clipboard.setText(AnnotatedString(it)) } },
                             label = { Text("Copy") },
                             leadingIcon = { Icon(Icons.Default.ContentCopy, null) }
                         )

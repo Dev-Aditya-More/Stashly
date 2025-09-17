@@ -1,32 +1,23 @@
 package com.example.anchor.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -38,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,16 +37,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import com.example.anchor.ui.viewmodels.MainViewModel
+import com.example.anchor.utils.getFileIconRes
 import com.example.stashly.R
 import org.koin.compose.viewmodel.koinViewModel
-import androidx.core.net.toUri
 import java.io.File
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -73,6 +64,7 @@ fun SavedItemCard(
     var editedUrl by remember { mutableStateOf(item.url ?: "") }
     var editedPath by remember { mutableStateOf(item.filePath ?: "") }
     val viewModel: MainViewModel = koinViewModel()
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
@@ -138,15 +130,7 @@ fun SavedItemCard(
 
                     ContentType.FILE -> {
                         Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = if (editedPath.isNotEmpty()) {
-                                "Selected: ${getReadableFileName(editedPath)}"
-                            } else {
-                                "No file chosen"
-                            },
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
+
                         ReplaceFileButton(
                             onFileReplaced = { uri, fileName ->
                                 editedPath = uri.toString()
@@ -210,29 +194,28 @@ fun SavedItemCard(
                     }
 
                     ContentType.FILE -> {
-                        val fileName = getReadableFileName(item.filePath)
+                        val fileName = item.title ?: getReadableFileName(context,
+                            item.filePath?.toUri() ?: "".toUri()
+                        )
                         val fileExt = getFileExtension(item.filePath)
+                        val iconRes = getFileIconRes(fileName)
 
                         Text(
-                            text = item.title?.ifBlank { fileName.ifEmpty { "Unnamed File" } }
-                                ?: fileName.ifEmpty { "Unnamed File" },
+                            text = fileName.ifBlank { "Unnamed File" },
                             style = MaterialTheme.typography.titleMedium,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_file),
+                            Image(
+                                painter = painterResource(iconRes),
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(22.dp)
                             )
                             Spacer(Modifier.width(6.dp))
                             Text(
-                                text = buildString {
-                                    if (fileExt.isNotEmpty()) append(".$fileExt file")
-                                }.ifEmpty { "File details unavailable" },
+                                text = fileName.substringAfterLast('.', "Unknown").uppercase() + " file",
                                 style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
@@ -268,13 +251,43 @@ fun SavedItemCard(
 }
 
 
-fun getReadableFileName(path: String?): String {
-    if (path.isNullOrEmpty()) return "Unknown file"
-    return path.toUri().lastPathSegment
-        ?.substringAfterLast("/") ?: path
+fun getReadableFileName(context: Context, uri: Uri): String {
+    return try {
+        var name: String? = null
+        val cursor = context.contentResolver.query(uri, null, null, null, null)
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (nameIndex >= 0) {
+                    name = it.getString(nameIndex)
+                }
+            }
+        }
+        name ?: uri.lastPathSegment ?: "Unknown file"
+    } catch (e: Exception) {
+        uri.lastPathSegment ?: "Unknown file"
+    }
 }
+
 
 fun getFileExtension(path: String?): String {
     if (path.isNullOrEmpty()) return ""
     return path.substringAfterLast('.', "")
+}
+
+fun getFileSizeText(path: String?): String {
+    if (path.isNullOrEmpty()) return "Unknown size"
+    return try {
+        val uri = path.toUri()
+        val file = File(uri.path!!)
+        if (!file.exists()) return "Unknown size"
+        val sizeKb = file.length() / 1024.0
+        if (sizeKb < 1024) {
+            "%.1f KB".format(sizeKb)
+        } else {
+            "%.1f MB".format(sizeKb / 1024)
+        }
+    } catch (e: Exception) {
+        "Unknown size"
+    }
 }

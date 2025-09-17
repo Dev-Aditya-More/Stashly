@@ -1,6 +1,5 @@
 package com.example.anchor.jsoup
 
-import android.net.Uri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
@@ -31,7 +30,7 @@ suspend fun fetchBookmarkMetadata(url: String): BookmarkMetaData? {
             else url.toUri().scheme + "://" + url.toUri().host + favicon,
             previewImage = previewImage
         )
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         BookmarkMetaData(
             url = url,
             title = url.toUri().host ?: url,

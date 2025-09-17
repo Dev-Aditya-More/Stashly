@@ -41,7 +41,6 @@ fun ReplaceFileButton(
         onClick = { filePickerLauncher.launch("image/*") },
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(Color(20, 36, 49))
     ) {
         Icon(
             imageVector = Icons.Default.Refresh,

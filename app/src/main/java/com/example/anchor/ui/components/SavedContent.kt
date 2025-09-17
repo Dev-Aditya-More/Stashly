@@ -30,7 +30,7 @@ fun SavedContentScreen(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .padding(top = 10.dp)
+            .padding(top = 30.dp)
     ) {
         // Header Row
         Row(
