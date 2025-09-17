@@ -9,13 +9,17 @@ suspend fun fetchBookmarkMetadata(url: String): BookmarkMetaData? {
     return try {
         val doc = withContext(Dispatchers.IO) { Jsoup.connect(url).get() }
 
-        val title = doc.select("meta[property=og:title]").attr("content")
-            .ifBlank { doc.title() }
-            .ifBlank { url.toUri().host ?: url }
+        val title = cleanTitle(
+            doc.select("meta[property=og:title]").attr("content")
+                .ifBlank { doc.title() }
+                .ifBlank { url.toUri().host ?: url }
+        )
 
         val description = doc.select("meta[name=description]").attr("content")
             .ifBlank { doc.select("meta[property=og:description]").attr("content") }
             .ifBlank { doc.select("p").firstOrNull()?.text() ?: "No description available" }
+
+        val cleanDescription = cleanDescription(description)
 
         val favicon = doc.select("link[rel~=(?i)^(shortcut|icon|favicon)]").attr("href")
             .ifBlank { "/favicon.ico" }
@@ -25,7 +29,7 @@ suspend fun fetchBookmarkMetadata(url: String): BookmarkMetaData? {
         BookmarkMetaData(
             url = url,
             title = title,
-            description = description,
+            description = cleanDescription,
             faviconUrl = if (favicon.startsWith("http")) favicon
             else url.toUri().scheme + "://" + url.toUri().host + favicon,
             previewImage = previewImage
@@ -39,6 +43,16 @@ suspend fun fetchBookmarkMetadata(url: String): BookmarkMetaData? {
             previewImage = null
         )
     }
+}
+
+fun cleanTitle(raw: String): String {
+    return raw
+        .replace(Regex("\\s*-\\s*YouTube$"), "")
+        .replace(Regex("\\s*-\\s*Twitter$"), "")
+        .trim()
+}
+fun cleanDescription(raw: String?): String {
+    return raw?.replace(Regex("\\s+"), " ")?.trim().orEmpty()
 }
 
 

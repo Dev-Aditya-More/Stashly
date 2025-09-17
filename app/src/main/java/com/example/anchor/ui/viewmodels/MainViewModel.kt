@@ -10,10 +10,13 @@ import com.example.anchor.data.local.Bookmark
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import com.example.anchor.data.remote.ItemRepository
+import com.example.anchor.jsoup.BookmarkMetaData
+import com.example.anchor.jsoup.LinkPreview
 import com.example.anchor.jsoup.fetchBookmarkMetadata
 import com.example.anchor.jsoup.fetchLinkPreview
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -22,6 +25,9 @@ import kotlinx.coroutines.launch
 class MainViewModel(
     private val repository: ItemRepository
 ) : ViewModel() {
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     val items: StateFlow<List<SavedItem>> =
         repository.getAllItems()
@@ -37,58 +43,70 @@ class MainViewModel(
         }
     }
 
-    fun saveLink(urlItem: SavedItem) {
+    fun saveLink(urlItem: SavedItem, fetched: LinkPreview?) {
         viewModelScope.launch(Dispatchers.IO) {
+            _isLoading.value = true
             try {
-                val preview = fetchLinkPreview(urlItem.url ?: "")
                 repository.saveItem(
                     urlItem.copy(
-                        title = preview?.title ?: "Untitled",
-                        text = preview?.description,
-                        linkPreview = preview?.imageUrl,
-                        faviconUrl = preview?.faviconUrl
+                        title = fetched?.title ?: "Untitled",
+                        text = fetched?.description,
+                        linkPreview = fetched?.imageUrl,
+                        faviconUrl = fetched?.faviconUrl
                     )
                 )
             } catch (e: Exception) {
                 repository.saveItem(urlItem.copy(title = "Untitled"))
+            } finally {
+                _isLoading.value = false
             }
         }
     }
 
     fun saveText(text: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            val title = generateTempTitle(text.text)
-            repository.saveItem(
-                SavedItem(
-                    title = title,
-                    text = text.text,
-                    contentType = ContentType.TEXT
+            _isLoading.value = true
+            try {
+                val title = generateTempTitle(text.text)
+                repository.saveItem(
+                    SavedItem(
+                        title = title,
+                        text = text.text,
+                        contentType = ContentType.TEXT
+                    )
                 )
-            )
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
     fun saveFile(fileItem: SavedItem, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val uri = fileItem.filePath?.toUri()
-            val fileName = uri?.let { getFileName(context, it) } ?: "File"
-            repository.saveItem(
-                fileItem.copy(
-                    title = fileName,
-                    contentType = ContentType.FILE
+            _isLoading.value = true
+            try {
+                val uri = fileItem.filePath?.toUri()
+                val fileName = uri?.let { getFileName(context, it) } ?: "File"
+                repository.saveItem(
+                    fileItem.copy(
+                        title = fileName,
+                        contentType = ContentType.FILE
+                    )
                 )
-            )
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
-    fun saveBookmark(url: String) {
+    fun saveBookmark(url: String, metadata: BookmarkMetaData?) {
         viewModelScope.launch(Dispatchers.IO) {
+            _isLoading.value = true
             try {
-                val metadata = fetchBookmarkMetadata(url)
                 val bookmark = Bookmark(
                     url = url,
-                    title = metadata?.title,
-                    description = metadata?.description,
+                    title = metadata?.title ?: url.toUri().host ?: "Untitled",
+                    description = metadata?.description ?: "No description available",
                     faviconUrl = metadata?.faviconUrl,
                     previewImage = metadata?.previewImage
                 )
@@ -101,25 +119,37 @@ class MainViewModel(
                         title = "Untitled"
                     )
                 )
+            } finally {
+                _isLoading.value = false
             }
         }
     }
 
-
     fun editItem(item: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.editItem(item)
+            _isLoading.value = true
+            try {
+                repository.editItem(item)
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
     fun removeItem(item: SavedItem) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.removeItem(item)
+            _isLoading.value = true
+            try {
+                repository.removeItem(item)
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
     fun getItemById(id: Int): Flow<SavedItem?> = repository.getItemById(id)
 }
+
 
 fun generateTempTitle(text: String?, wordLimit: Int = 4): String {
     if (text.isNullOrBlank()) return "Untitled note"

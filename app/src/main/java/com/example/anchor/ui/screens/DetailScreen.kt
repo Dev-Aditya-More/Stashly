@@ -4,6 +4,7 @@ import com.example.stashly.R
 import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -219,46 +220,81 @@ fun DetailScreen(
 
                 // ---------------- FILE ----------------
                 ContentType.FILE -> {
+                    val fileName = item.filePath?.substringAfterLast("/") ?: "Unknown file"
+                    val isImage = fileName.endsWith(".png", true) ||
+                            fileName.endsWith(".jpg", true) ||
+                            fileName.endsWith(".jpeg", true) ||
+                            fileName.endsWith(".gif", true) ||
+                            fileName.endsWith(".webp", true)
+
                     Card(
-                        shape = RoundedCornerShape(28.dp),
+                        shape = RoundedCornerShape(20.dp),
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                        )
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                Icons.Default.Description,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onTertiaryContainer,
-                                modifier = Modifier.size(40.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = item.filePath?.substringAfterLast("/") ?: "Unknown file",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onTertiaryContainer
+                        Column {
+                            // Preview banner
+                            if (isImage) {
+                                AsyncImage(
+                                    model = item.filePath,
+                                    contentDescription = "Image Preview",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(180.dp)
+                                        .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+                                    contentScale = ContentScale.Crop
                                 )
+                            } else {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(180.dp)
+                                        .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                                        .background(MaterialTheme.colorScheme.tertiaryContainer),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.Description,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                        modifier = Modifier.size(64.dp)
+                                    )
+                                }
+                            }
+
+                            // Metadata below preview
+                            Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    text = "File",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f)
+                                    text = fileName,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+
+                                Spacer(Modifier.height(8.dp))
+
+                                // Description if present, else show file path
+                                ExpandableText(
+                                    text = item.text ?: item.filePath ?: "No description",
+                                    minimizedMaxLines = 3
                                 )
                             }
                         }
                     }
 
-                    // Actions
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Spacer(Modifier.height(12.dp))
+
+                    // Actions (same as link section)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         AssistChip(
                             onClick = {
                                 item.filePath?.let {
                                     val intent = Intent(Intent.ACTION_VIEW).apply {
-                                        setDataAndType(it.toUri(), "*/*")
+                                        setDataAndType(it.toUri(), if (isImage) "image/*" else "*/*")
                                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                     }
                                     context.startActivity(intent)
@@ -281,7 +317,7 @@ fun DetailScreen(
                             onClick = {
                                 item.filePath?.let {
                                     val intent = Intent(Intent.ACTION_SEND).apply {
-                                        type = "*/*"
+                                        type = if (isImage) "image/*" else "*/*"
                                         putExtra(Intent.EXTRA_STREAM, it.toUri())
                                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                     }
@@ -293,6 +329,7 @@ fun DetailScreen(
                         )
                     }
                 }
+
             }
         }
     }

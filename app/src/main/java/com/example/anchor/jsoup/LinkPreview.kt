@@ -8,10 +8,13 @@ import java.net.URL
 
 suspend fun fetchLinkPreview(url: String): LinkPreview? = withContext(Dispatchers.IO) {
     try {
-        val doc = Jsoup.connect(url).get()
+        val doc = withContext(Dispatchers.IO) { Jsoup.connect(url).get() }
 
-        val title = doc.select("meta[property=og:title]").attr("content")
-            .ifBlank { doc.title() }
+        val title = cleanTitle(
+            doc.select("meta[property=og:title]").attr("content")
+                .ifBlank { doc.title() }
+                .ifBlank { url.toUri().host ?: url }
+        )
 
         val description = doc.select("meta[property=og:description]").attr("content")
             .ifBlank { doc.select("meta[name=description]").attr("content") }
@@ -39,9 +42,12 @@ suspend fun fetchLinkPreview(url: String): LinkPreview? = withContext(Dispatcher
             favicon = "$domain/favicon.ico"
         }
 
+        val cleanTitle = cleanTitle(title)
+        val cleanDescription = cleanDescription(description)
+
         LinkPreview(
             title = title.ifBlank { null },
-            description = description.ifBlank { null },
+            description = cleanDescription.ifBlank { null },
             imageUrl = image.ifBlank { null },
             faviconUrl = favicon.ifBlank { null },
             url = url

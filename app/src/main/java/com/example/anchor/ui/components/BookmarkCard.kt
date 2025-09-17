@@ -1,7 +1,5 @@
 package com.example.anchor.ui.components
 
-import android.net.Uri
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Column
@@ -17,8 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -90,12 +87,18 @@ fun AddBookmarkSheet(
 
         when {
             isLoading -> {
-                LoadingIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    LinearWavyProgressIndicator(modifier = Modifier.fillMaxWidth(0.5f))
+                }
             }
             metadata != null -> {
                 BookmarkPreviewCard(metadata!!)
             }
         }
+
 
         Spacer(Modifier.height(16.dp))
 

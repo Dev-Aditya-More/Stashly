@@ -23,6 +23,10 @@ import com.example.anchor.Screen
 import com.example.anchor.data.local.Bookmark
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
+import com.example.anchor.jsoup.BookmarkMetaData
+import com.example.anchor.jsoup.LinkPreview
+import com.example.anchor.jsoup.fetchBookmarkMetadata
+import com.example.anchor.jsoup.fetchLinkPreview
 import com.example.anchor.ui.components.AddBookmarkSheet
 import com.example.anchor.ui.components.InputField
 import com.example.anchor.ui.components.LottieAnimationExample
@@ -41,7 +45,9 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import org.koin.compose.viewmodel.koinViewModel
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class,
+    ExperimentalMaterial3ExpressiveApi::class
+)
 @Composable
 fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koinViewModel()) {
     var text by remember { mutableStateOf("") }
@@ -51,142 +57,170 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var showAddBookmarkSheet by remember { mutableStateOf(false) }
+    val loading by viewModel.isLoading.collectAsState()
+    var fetchMetadata by remember { mutableStateOf<LinkPreview?>(null) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { StashlyAppBar() },
         bottomBar = { StashlyBottomBar(navController) },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = { showAddBookmarkSheet = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Bookmark")
+            MediumFloatingActionButton(onClick = { showAddBookmarkSheet = true }) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "Localized description",
+                    modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
+                )
             }
         }
     ) { paddingValues ->
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            InputField(
-                value = text,
-                onValueChange = {
-                    text = it
-                    isError = false
-                },
-                onSaveClick = {
-                    scope.launch {
-                        val type = withContext(Dispatchers.Default) { classifyInput(text) }
-                        when (type) {
-                            ContentType.LINK -> {
-                                val normalized = normalizeUrl(text)
-                                val corrected = autoCorrectUrl(normalized)
-                                if (isValidUrl(corrected)) {
-                                    viewModel.saveLink(SavedItem(url = corrected, contentType = ContentType.LINK))
-                                    text = ""
-                                } else isError = true
-                            }
-                            ContentType.TEXT -> {
-                                if (text.isBlank()) {
-                                    isError = true
-                                } else {
-                                    viewModel.saveText(SavedItem(text = text, contentType = ContentType.TEXT))
+        Box(modifier = Modifier.fillMaxSize()) {
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                InputField(
+                    value = text,
+                    onValueChange = {
+                        text = it
+                        isError = false
+                        fetchMetadata = null
+                    },
+                    onSaveClick = {
+                        scope.launch {
+                            val type = withContext(Dispatchers.Default) { classifyInput(text) }
+                            when (type) {
+                                ContentType.LINK -> {
+                                    val normalized = normalizeUrl(text)
+                                    val corrected = autoCorrectUrl(normalized)
+
+                                    if (isValidUrl(corrected)) {
+                                        scope.launch {
+                                            fetchMetadata = fetchLinkPreview(corrected)
+                                        }
+
+                                        viewModel.saveLink(
+                                            SavedItem(
+                                                url = corrected,
+                                                contentType = ContentType.LINK,
+                                            ), fetchMetadata
+                                        )
+                                        text = ""
+                                    } else isError = true
                                 }
-                                text = ""
+                                ContentType.TEXT -> {
+                                    if (text.isBlank()) {
+                                        isError = true
+                                    } else {
+                                        viewModel.saveText(SavedItem(text = text, contentType = ContentType.TEXT))
+                                    }
+                                    text = ""
+                                }
+                                ContentType.FILE -> {
+                                    val uri = text.toUri()
+                                    val fileName = uri.lastPathSegment ?: "File"
+                                    viewModel.saveFile(
+                                        SavedItem(
+                                            contentType = ContentType.FILE,
+                                            title = fileName,
+                                            filePath = text
+                                        ), context
+                                    )
+                                    text = ""
+                                }
                             }
-                            ContentType.FILE -> {
-                                val uri = text.toUri()
-                                val fileName = uri.lastPathSegment ?: "File"
-                                viewModel.saveFile(
-                                    SavedItem(
-                                        contentType = ContentType.FILE,
-                                        title = fileName,
-                                        filePath = text
-                                    ), context
-                                )
-                                text = ""
-                            }
-                        }
-                    }
-                },
-                isError = isError
-            )
-
-            if (isError) {
-                Text(
-                    "please enter it properly",
-                    color = Color.Red,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp)
-                )
-            }
-
-            Spacer(Modifier.height(16.dp))
-            Text("or", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(16.dp))
-
-            UploadFileField(
-                modifier = Modifier.fillMaxWidth(),
-                onFilePicked = { uri, context ->
-                    val fileName = uri.lastPathSegment ?: "File"
-                    viewModel.saveFile(SavedItem(contentType = ContentType.FILE, title = fileName, filePath = uri.toString()), context)
-                }
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            if (items.isEmpty()) {
-                LottieAnimationExample(
-                    modifier = Modifier.size(300.dp).padding(top = 50.dp),
-                )
-            } else {
-                SavedContentScreen(
-                    savedItems = items,
-                    onDelete = { savedItem -> viewModel.removeItem(savedItem) },
-                    onEdit = { savedItem -> viewModel.editItem(savedItem) },
-                    onItemClick = { item ->
-                        coroutineScope.launch {
-                            navController.navigate(Screen.Detail.createRoute(item.id))
                         }
                     },
-                    onSeeMore = {
-                        coroutineScope.launch {
-                            navController.navigate(Screen.Items.route)
-                        }
+                    isError = isError
+                )
+
+                if (isError) {
+                    Text(
+                        "",
+                        color = Color.Red,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
+                Spacer(Modifier.height(16.dp))
+                Text("or", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(16.dp))
+
+                UploadFileField(
+                    modifier = Modifier.fillMaxWidth(),
+                    onFilePicked = { uri, context ->
+                        val fileName = uri.lastPathSegment ?: "File"
+                        viewModel.saveFile(
+                            SavedItem(
+                                contentType = ContentType.FILE,
+                                title = fileName,
+                                filePath = uri.toString()
+                            ), context
+                        )
                     }
                 )
-            }
 
-            if (showAddBookmarkSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showAddBookmarkSheet = false }
-                ) {
-                    AddBookmarkSheet(
-                        onSave = { url, metadata ->
-                            val normalized = normalizeUrl(url)
-                            val corrected = autoCorrectUrl(normalized)
-                            if (isValidUrl(corrected)) {
-                                val bookmark = Bookmark(
-                                    url = corrected,
-                                    title = metadata?.title,
-                                    description = metadata?.description,
-                                    faviconUrl = metadata?.faviconUrl,
-                                    previewImage = metadata?.previewImage // optional, if you fetch og:image
-                                )
-                                viewModel.saveBookmark(bookmark.url)
-                                showAddBookmarkSheet = false
+                Spacer(Modifier.height(16.dp))
+
+                if (items.isEmpty()) {
+                    LottieAnimationExample(
+                        modifier = Modifier.size(300.dp).padding(top = 50.dp),
+                    )
+                } else {
+                    SavedContentScreen(
+                        savedItems = items,
+                        onDelete = { savedItem -> viewModel.removeItem(savedItem) },
+                        onEdit = { savedItem -> viewModel.editItem(savedItem) },
+                        onItemClick = { item ->
+                            coroutineScope.launch {
+                                navController.navigate(Screen.Detail.createRoute(item.id))
                             }
                         },
-                        onDismiss = { showAddBookmarkSheet = false }
+                        onSeeMore = {
+                            coroutineScope.launch {
+                                navController.navigate(Screen.Items.route)
+                            }
+                        }
+                    )
+                }
+
+                if (showAddBookmarkSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showAddBookmarkSheet = false }
+                    ) {
+                        AddBookmarkSheet(
+                            onSave = { url, metadata ->
+                                val normalized = normalizeUrl(url)
+                                val corrected = autoCorrectUrl(normalized)
+                                if (isValidUrl(corrected)) {
+                                    viewModel.saveBookmark(corrected, metadata)
+                                    showAddBookmarkSheet = false
+                                }
+                            },
+                            onDismiss = { showAddBookmarkSheet = false }
+                        )
+                    }
+                }
+            }
+
+            // Overlay loading indicator
+            if (loading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularWavyProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
-
         }
     }
 }

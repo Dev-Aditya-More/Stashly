@@ -97,7 +97,7 @@ fun AnchorTheme(
         else -> LightColorScheme
     }
     val systemUiController = rememberSystemUiController()
-    val darkIcons = false
+    val darkIcons = true
     val color = Color.Black
 
     SideEffect {
