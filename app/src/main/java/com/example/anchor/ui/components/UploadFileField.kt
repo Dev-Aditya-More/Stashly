@@ -1,7 +1,9 @@
 package com.example.anchor.ui.components
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -35,15 +37,30 @@ fun UploadFileField(
 ) {
     val context = LocalContext.current
     val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
-        uri?.let { onFilePicked(it, context) }
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(
+                it,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            onFilePicked(it, context)
+            val canOpen = try {
+                context.contentResolver.openInputStream(uri)?.close()
+                true
+            } catch (e: Exception) {
+                false
+            }
+            Log.d("DEBUG", "Can open stream: $canOpen")
+
+        }
+
     }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { filePickerLauncher.launch("*/*") }
+            .clickable { filePickerLauncher.launch(arrayOf("*/*")) }
             .padding(horizontal = 16.dp)
         ,
         shape = RoundedCornerShape(16.dp),

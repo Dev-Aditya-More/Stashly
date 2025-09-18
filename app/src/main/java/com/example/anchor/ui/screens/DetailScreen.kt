@@ -2,6 +2,7 @@ package com.example.anchor.ui.screens
 
 import com.example.stashly.R
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +37,8 @@ import coil.compose.AsyncImage
 import com.example.anchor.data.local.ContentType
 import com.example.anchor.data.local.SavedItem
 import androidx.core.net.toUri
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.anchor.ui.components.ExpandableText
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -235,11 +239,20 @@ fun DetailScreen(
                         ),
                         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
+                        Log.d("DEBUG", "Picked file URI: ${item.filePath}")
+
                         Column {
+
+                            val painter = rememberAsyncImagePainter(
+                                ImageRequest.Builder(context)
+                                    .data(item.filePath?.toUri())
+                                    .crossfade(true)
+                                    .build()
+                            )
                             // Preview banner
                             if (isImage) {
-                                AsyncImage(
-                                    model = item.filePath,
+                                Image(
+                                    painter = painter,
                                     contentDescription = "Image Preview",
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -247,6 +260,7 @@ fun DetailScreen(
                                         .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
                                     contentScale = ContentScale.Crop
                                 )
+
                             } else {
                                 Box(
                                     modifier = Modifier
@@ -265,8 +279,10 @@ fun DetailScreen(
                                 }
                             }
 
+
                             // Metadata below preview
                             Column(modifier = Modifier.padding(16.dp)) {
+                                // Title (filename)
                                 Text(
                                     text = fileName,
                                     style = MaterialTheme.typography.titleMedium,
@@ -277,12 +293,24 @@ fun DetailScreen(
 
                                 Spacer(Modifier.height(8.dp))
 
-                                // Description if present, else show file path
+                                // Subtitle (description or file info)
+                                val fileInfo = remember(item.filePath) {
+                                    val uri = item.filePath?.toUri()
+                                    val type = uri?.let { context.contentResolver.getType(it) } ?: "Unknown type"
+                                    val size = uri?.let {
+                                        context.contentResolver.openFileDescriptor(it, "r")?.use { pfd ->
+                                            "${(pfd.statSize / 1024)} KB"
+                                        }
+                                    } ?: ""
+                                    listOf(type, size).filter { it.isNotEmpty() }.joinToString(" • ")
+                                }
+
                                 ExpandableText(
-                                    text = item.text ?: item.filePath ?: "No description",
-                                    minimizedMaxLines = 3
+                                    text = item.text ?: fileInfo.ifEmpty { "No description" },
+                                    minimizedMaxLines = 2
                                 )
                             }
+
                         }
                     }
 

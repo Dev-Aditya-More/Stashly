@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.anchor.utils.ContentTypeConverter
 
-@Database(entities = [SavedItem::class], version = 7, exportSchema = false)
+@Database(entities = [SavedItem::class], version = 9, exportSchema = false)
 @TypeConverters(ContentTypeConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun itemDao(): ItemDao
