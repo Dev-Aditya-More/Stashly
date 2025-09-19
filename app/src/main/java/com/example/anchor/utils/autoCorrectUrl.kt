@@ -1,7 +1,7 @@
 package com.example.anchor.utils
 
 fun autoCorrectUrl(input: String): String {
-    var url = input.trim().lowercase().replace("\\s+".toRegex(), "")
+    var url = input.trim()
 
     url = url
         .replace(".con", ".com")
