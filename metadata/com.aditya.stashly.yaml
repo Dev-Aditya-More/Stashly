@@ -1,0 +1,21 @@
+Categories:
+  - Productivity
+  - Tools
+License: Apache-2.0
+SourceCode: https://gitlab.com/aditya1875more/Stashly
+IssueTracker: https://gitlab.com/aditya1875more/Stashly/issues
+Changelog: https://gitlab.com/aditya1875more/Stashly/-/releases
+Name: Stashly
+Summary: Bookmark and vault manager
+Description: |
+  Stashly is your personal bookmarking and vault app. Save links, files, and notes in one place,
+  with a secure vault for sensitive items. Open source, privacy-respecting, and simple to use.
+RepoType: git
+Repo: https://gitlab.com/aditya1875more/Stashly.git
+Builds:
+  - versionName: 1.0.5
+    versionCode: 6
+    commit: v1.0.1
+    subdir: app
+    gradle:
+      - yes
