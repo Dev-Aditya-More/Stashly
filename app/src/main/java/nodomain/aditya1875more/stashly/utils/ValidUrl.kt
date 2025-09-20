@@ -1,7 +1,7 @@
 package nodomain.aditya1875more.stashly.utils
 
 import android.util.Patterns
-import com.example.anchor.data.local.ContentType
+import nodomain.aditya1875more.stashly.data.local.ContentType
 
 fun classifyInput(input: String): ContentType {
     return if (Patterns.WEB_URL.matcher(input).matches()) {

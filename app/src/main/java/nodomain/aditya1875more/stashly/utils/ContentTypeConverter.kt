@@ -1,7 +1,7 @@
 package nodomain.aditya1875more.stashly.utils
 
 import androidx.room.TypeConverter
-import com.example.anchor.data.local.ContentType
+import nodomain.aditya1875more.stashly.data.local.ContentType
 
 class ContentTypeConverter {
     @TypeConverter
