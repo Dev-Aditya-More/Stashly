@@ -20,10 +20,10 @@ Stashly lets you save, organize, and view different types of content (text, link
 <hr>
 
 <p align="center">
-  <img src="./2.png" alt="Screen 1" width="200"/>
-  <img src="./3.png" alt="Screen 2" width="200"/>
-  <img src="./4.png" alt="Screen 3" width="200"/>
-  <img src="./5.png" alt="Screen 4" width="200"/>
+  <img src="assets/2.png" alt="Screen 1" width="200"/>
+  <img src="assets/3.png" alt="Screen 2" width="200"/>
+  <img src="assets/4.png" alt="Screen 3" width="200"/>
+  <img src="assets/5.png" alt="Screen 4" width="200"/>
 </p>
 
 ---  
