@@ -1,6 +1,7 @@
 package nodomain.aditya1875more.stashly.utils
 
-import com.example.stashly.R
+import nodomain.aditya1875more.stashly.R
+
 
 fun getFileIconRes(fileName: String): Int {
     val ext = fileName.substringAfterLast('.', "").lowercase()
