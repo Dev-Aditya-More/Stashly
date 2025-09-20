@@ -11,11 +11,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.stashly"
+    namespace = "nodomain.aditya1875more.stashly"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.stashly"
+        applicationId = "nodomain.aditya1875more.stashly"
         minSdk = 25
         targetSdk = 36
         versionCode = 6
@@ -51,6 +51,13 @@ android {
     buildFeatures {
         buildConfig = true
         compose = true
+    }
+
+    dependenciesInfo {
+        // Disables dependency metadata when building APKs (for IzzyOnDroid/F-Droid)
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles (for Google Play)
+        includeInBundle = false
     }
 }
 
