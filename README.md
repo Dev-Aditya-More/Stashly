@@ -28,8 +28,11 @@ Stashly lets you save, organize, and view different types of content (text, link
 
 ---  
 
-  <video src="https://github.com/user-attachments/assets/48229af1-f9f7-4a00-84d8-990c3c9f34e8" width="250"/>
-  <video src="https://github.com/user-attachments/assets/4411b1f7-de44-4cd6-bb40-f607b2805c72" width="250"/>
+https://github.com/user-attachments/assets/48229af1-f9f7-4a00-84d8-990c3c9f34e8
+
+<hr>
+
+https://github.com/user-attachments/assets/4411b1f7-de44-4cd6-bb40-f607b2805c72
 
 ---
 
