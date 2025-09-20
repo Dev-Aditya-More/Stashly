@@ -1,0 +1,7 @@
+Stashly helps you store, organize, and secure your files and notes.
+Features include:
+
+- Easy-to-use interface
+- Offline access
+- Import/export your essentials
+- Material You theming
