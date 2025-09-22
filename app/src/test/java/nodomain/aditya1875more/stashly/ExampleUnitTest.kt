@@ -1,4 +1,4 @@
-package com.example.anchor
+package nodomain.aditya1875more.stashly
 
 import org.junit.Test
 

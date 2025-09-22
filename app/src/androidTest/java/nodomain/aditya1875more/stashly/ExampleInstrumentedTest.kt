@@ -1,4 +1,4 @@
-package com.example.anchor
+package nodomain.aditya1875more.stashly
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
