@@ -5,6 +5,18 @@ Stashly lets you save, organize, and view different types of content (text, link
 
 ---
 
+## Installation
+
+[![RB Status](https://shields.rbtlog.dev/simple/nodomain.aditya1875more.stashly)](https://shields.rbtlog.dev/nodomain.aditya1875more.stashly)
+[![Available on IzzyOnDroid](https://img.shields.io/badge/IzzyOnDroid-Download-blue)](https://apt.izzysoft.de/packages/nodomain.aditya1875more.stashly)
+
+
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" height="80">](https://apt.izzysoft.de/packages/nodomain.aditya1875more.stashly)
+
+> ### Or Download latest from [Releases](https://github.com/Dev-Aditya-More/Stashly/releases)
+
+---
+
 ## ✨ Features
 - Save text, links, and files 📑  
 - Organized storage with cards 🗂  
