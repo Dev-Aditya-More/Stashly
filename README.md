@@ -5,6 +5,18 @@ Stashly lets you save, organize, and view different types of content (text, link
 
 ---
 
+## Installation
+
+[![RB Status](https://shields.rbtlog.dev/simple/nodomain.aditya1875more.stashly)](https://shields.rbtlog.dev/nodomain.aditya1875more.stashly)
+[![Available on IzzyOnDroid](https://img.shields.io/badge/IzzyOnDroid-Download-blue)](https://apt.izzysoft.de/packages/nodomain.aditya1875more.stashly)
+
+
+[<img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" height="80">](https://apt.izzysoft.de/packages/nodomain.aditya1875more.stashly)
+
+> ### Or Download latest from [Releases](https://github.com/Dev-Aditya-More/Stashly/releases)
+
+---
+
 ## ✨ Features
 - Save text, links, and files 📑  
 - Organized storage with cards 🗂  
@@ -15,11 +27,24 @@ Stashly lets you save, organize, and view different types of content (text, link
 
 ## UI 
 
-> The app is still evolving! Here's how the UI looks 👇  
+> The app is still evolving! Here's how the UI looks 👇
 
-<video src="https://github.com/user-attachments/assets/4411b1f7-de44-4cd6-bb40-f607b2805c72" width="300" controls></video>
+<hr>
 
-<video src="https://github.com/user-attachments/assets/7a47f681-ce47-467d-8d0b-c657add88e33" width="300" controls></video>
+<p align="center">
+  <img src="assets/2.png" alt="Screen 1" width="200"/>
+  <img src="assets/3.png" alt="Screen 2" width="200"/>
+  <img src="assets/4.png" alt="Screen 3" width="200"/>
+  <img src="assets/5.png" alt="Screen 4" width="200"/>
+</p>
+
+---  
+
+https://github.com/user-attachments/assets/48229af1-f9f7-4a00-84d8-990c3c9f34e8
+
+<hr>
+
+https://github.com/user-attachments/assets/4411b1f7-de44-4cd6-bb40-f607b2805c72
 
 ---
 

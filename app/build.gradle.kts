@@ -80,6 +80,7 @@ dependencies {
     implementation("androidx.compose.animation:animation-core:1.7.0-alpha07")
     implementation(libs.coil.compose)
 
+    implementation(libs.coil)
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
