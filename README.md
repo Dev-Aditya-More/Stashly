@@ -31,12 +31,10 @@ Stashly lets you save, organize, and view different types of content (text, link
 
 <hr>
 
-<p align="center">
-  <img src="assets/2.png" alt="Screen 1" width="200"/>
-  <img src="assets/3.png" alt="Screen 2" width="200"/>
-  <img src="assets/4.png" alt="Screen 3" width="200"/>
-  <img src="assets/5.png" alt="Screen 4" width="200"/>
-</p>
+| ![1](fastlane/metadata/android/en-US/images/phoneScreenshots/1.png) | ![2](fastlane/metadata/android/en-US/images/phoneScreenshots/2.png) |
+|:-------------------------------------------------------------------:|:-------------------------------------------------------------------:|
+| ![3](fastlane/metadata/android/en-US/images/phoneScreenshots/3.png) | ![4](fastlane/metadata/android/en-US/images/phoneScreenshots/4.png) |
+| ![5](fastlane/metadata/android/en-US/images/phoneScreenshots/5.png) | ![6](fastlane/metadata/android/en-US/images/phoneScreenshots/6.png) | 
 
 ---  
 
