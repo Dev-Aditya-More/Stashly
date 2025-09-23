@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -13,18 +14,28 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -42,22 +53,61 @@ fun FavouritesScreen(
     viewModel: MainViewModel = koinViewModel(),
 ) {
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    var searchQuery by remember { mutableStateOf("") }
+    var isSearching by remember { mutableStateOf(false) }
+
+    // Filtered favourites
+    val filteredFavourites = remember(searchQuery, favourites) {
+        if (searchQuery.isBlank()) favourites
+        else favourites.filter { item ->
+            val keyword = searchQuery.lowercase()
+            item.text?.lowercase()?.contains(keyword) == true ||
+                    item.filePath?.lowercase()?.contains(keyword) == true
+        }
+    }
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
-                title = { Text("Favourites") },
-                scrollBehavior = scrollBehavior
+                title = {
+                    if (isSearching) {
+                        TextField(
+                            value = searchQuery,
+                            onValueChange = { searchQuery = it },
+                            placeholder = { Text("Search favourites…") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            textStyle = MaterialTheme.typography.bodyMedium,
+                            colors = TextFieldDefaults.colors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                disabledIndicatorColor = Color.Transparent
+                            )
+                        )
+                    } else {
+                        Text("Favourites")
+                    }
+                },
+                actions = {
+                    if (isSearching) {
+                        IconButton(onClick = {
+                            searchQuery = ""
+                            isSearching = false
+                        }) {
+                            Icon(Icons.Default.Close, contentDescription = "Close Search")
+                        }
+                    } else {
+                        IconButton(onClick = { isSearching = true }) {
+                            Icon(Icons.Default.Search, contentDescription = "Search")
+                        }
+                    }
+                }
             )
         },
         bottomBar = { StashlyBottomBar(navController) }
-
     ) { paddingValues ->
 
-        if (favourites.isEmpty()) {
-            // empty state scrollable
+        if (filteredFavourites.isEmpty()) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -74,19 +124,20 @@ fun FavouritesScreen(
                 )
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    text = "No favourites yet",
+                    text = if (searchQuery.isEmpty()) "No favourites yet" else "No results found",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(Modifier.height(8.dp))
-                Text(
-                    text = "Mark items as favourites and they’ll appear here.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                if (searchQuery.isEmpty()) {
+                    Text(
+                        text = "Mark items as favourites and they’ll appear here.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         } else {
-            // list already scrolls with LazyColumn
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -94,7 +145,7 @@ fun FavouritesScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(16.dp)
             ) {
-                items(favourites, key = { it.id }) { item ->
+                items(filteredFavourites, key = { it.id }) { item ->
                     SavedItemCard(
                         item = item,
                         onDelete = { viewModel.removeItem(item) },

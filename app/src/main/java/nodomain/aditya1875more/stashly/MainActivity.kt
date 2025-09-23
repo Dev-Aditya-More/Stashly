@@ -9,6 +9,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import nodomain.aditya1875more.stashly.ui.theme.AnchorTheme
+import nodomain.aditya1875more.stashly.utils.SetSystemBars
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,13 +53,11 @@ class MainActivity : ComponentActivity() {
             isAppearanceLightNavigationBars = false
         }
 
-        val controller = WindowCompat.getInsetsController(window, window.decorView)
-        controller.hide(WindowInsetsCompat.Type.navigationBars())
-        controller.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-
         setContent {
             AnchorTheme {
+
+                val darkTheme = isSystemInDarkTheme()
+                SetSystemBars(lightIcons = darkTheme)
 
                 AppNavHost(
                     navController = rememberNavController()
