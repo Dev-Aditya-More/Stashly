@@ -3,14 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32"/>
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
     <application
-        android:name="com.example.stashly.BaseApplication"
+        android:name="nodomain.aditya1875more.stashly.BaseApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -20,7 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PokeVerse.NoSplash">
         <activity
-            android:name="com.example.stashly.MainActivity"
+            android:name="nodomain.aditya1875more.stashly.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.PokeVerse.NoSplash">
