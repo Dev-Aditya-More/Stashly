@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,6 +46,7 @@ import nodomain.aditya1875more.stashly.ui.theme.AnchorTheme
 import nodomain.aditya1875more.stashly.utils.SetSystemBars
 
 class MainActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -54,13 +57,15 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            val windowSizeClass = calculateWindowSizeClass(this)
             AnchorTheme {
 
                 val darkTheme = isSystemInDarkTheme()
                 SetSystemBars(lightIcons = darkTheme)
 
                 AppNavHost(
-                    navController = rememberNavController()
+                    navController = rememberNavController(),
+                    windowSizeClass = windowSizeClass
                 )
             }
         }

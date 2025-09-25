@@ -20,6 +20,7 @@ koin-core = "4.1.0"
 compose = "1.9.0"
 lottieCompose = "6.6.7"
 material3 = "1.5.0-alpha03"
+material3WindowSizeClass = "1.4.0"
 materialIconsExtended = "1.7.8"
 moshi = "1.15.2"
 navigationCompose = "2.7.7"
@@ -47,6 +48,7 @@ accompanist = "0.30.1"
 
 # Others
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
+androidx-compose-material3-window-size-class1 = { module = "androidx.compose.material3:material3-window-size-class", version.ref = "material3WindowSizeClass" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 coil = { module = "io.coil-kt:coil", version.ref = "coilCompose" }

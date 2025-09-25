@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -26,6 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,13 +51,13 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun ItemScreen(
     navController: NavHostController,
+    windowSizeClass: WindowSizeClass,
     viewModel: MainViewModel = koinViewModel()
 ) {
     val items by viewModel.items.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
 
-    // Filter items
     val filteredItems = remember(searchQuery, items) {
         if (searchQuery.isBlank()) items
         else items.filter { item ->
@@ -60,6 +65,13 @@ fun ItemScreen(
             item.text?.lowercase()?.contains(keyword) == true ||
                     item.filePath?.lowercase()?.contains(keyword) == true
         }
+    }
+
+    val columns = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 1
+        WindowWidthSizeClass.Medium -> 2
+        WindowWidthSizeClass.Expanded -> 3
+        else -> 1
     }
 
     Scaffold(
@@ -80,9 +92,7 @@ fun ItemScreen(
                                 disabledIndicatorColor = Color.Transparent
                             )
                         )
-                    } else {
-                        Text("")
-                    }
+                    } else Text("")
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -94,13 +104,9 @@ fun ItemScreen(
                         IconButton(onClick = {
                             searchQuery = ""
                             isSearching = false
-                        }) {
-                            Icon(Icons.Default.Close, contentDescription = "Close Search")
-                        }
+                        }) { Icon(Icons.Default.Close, contentDescription = "Close Search") }
                     } else {
-                        IconButton(onClick = { isSearching = true }) {
-                            Icon(Icons.Default.Search, contentDescription = "Search")
-                        }
+                        IconButton(onClick = { isSearching = true }) { Icon(Icons.Default.Search, contentDescription = "Search") }
                     }
                 }
             )
@@ -114,12 +120,7 @@ fun ItemScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        modifier = Modifier.size(64.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(8.dp))
                     Text(
                         text = if (searchQuery.isEmpty()) "No items saved yet" else "No results found",
@@ -129,21 +130,21 @@ fun ItemScreen(
                 }
             }
         } else {
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(columns),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredItems, key = { it.id }) { item ->
                     SavedItemCard(
                         item = item,
                         onDelete = { viewModel.removeItem(item) },
                         onSaveEdit = { viewModel.editItem(it) },
-                        onItemClick = {
-                            navController.navigate(Screen.Detail.createRoute(item.id))
-                        }
+                        onItemClick = { navController.navigate(Screen.Detail.createRoute(item.id)) }
                     )
                 }
             }

@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -28,6 +31,8 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,13 +55,13 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun FavouritesScreen(
     navController: NavHostController,
+    windowSizeClass: WindowSizeClass,
     viewModel: MainViewModel = koinViewModel(),
 ) {
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
     var isSearching by remember { mutableStateOf(false) }
 
-    // Filtered favourites
     val filteredFavourites = remember(searchQuery, favourites) {
         if (searchQuery.isBlank()) favourites
         else favourites.filter { item ->
@@ -64,6 +69,14 @@ fun FavouritesScreen(
             item.text?.lowercase()?.contains(keyword) == true ||
                     item.filePath?.lowercase()?.contains(keyword) == true
         }
+    }
+
+    // Determine number of columns based on screen width
+    val columns = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> 1
+        WindowWidthSizeClass.Medium -> 2
+        WindowWidthSizeClass.Expanded -> 3
+        else -> 1
     }
 
     Scaffold(
@@ -84,22 +97,16 @@ fun FavouritesScreen(
                                 disabledIndicatorColor = Color.Transparent
                             )
                         )
-                    } else {
-                        Text("Favourites")
-                    }
+                    } else Text("Favourites")
                 },
                 actions = {
                     if (isSearching) {
                         IconButton(onClick = {
                             searchQuery = ""
                             isSearching = false
-                        }) {
-                            Icon(Icons.Default.Close, contentDescription = "Close Search")
-                        }
+                        }) { Icon(Icons.Default.Close, contentDescription = "Close Search") }
                     } else {
-                        IconButton(onClick = { isSearching = true }) {
-                            Icon(Icons.Default.Search, contentDescription = "Search")
-                        }
+                        IconButton(onClick = { isSearching = true }) { Icon(Icons.Default.Search, contentDescription = "Search") }
                     }
                 }
             )
@@ -116,12 +123,7 @@ fun FavouritesScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = null,
-                    modifier = Modifier.size(80.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Icon(Icons.Default.Star, contentDescription = null, modifier = Modifier.size(80.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(12.dp))
                 Text(
                     text = if (searchQuery.isEmpty()) "No favourites yet" else "No results found",
@@ -138,21 +140,21 @@ fun FavouritesScreen(
                 }
             }
         } else {
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(columns),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
+                contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredFavourites, key = { it.id }) { item ->
                     SavedItemCard(
                         item = item,
                         onDelete = { viewModel.removeItem(item) },
                         onSaveEdit = { viewModel.editItem(item) },
-                        onItemClick = {
-                            navController.navigate(Screen.Detail.createRoute(item.id))
-                        }
+                        onItemClick = { navController.navigate(Screen.Detail.createRoute(item.id)) }
                     )
                 }
             }

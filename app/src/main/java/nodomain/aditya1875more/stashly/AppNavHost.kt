@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.Text
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,7 +41,10 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun AppNavHost(navController: NavHostController) {
+fun AppNavHost(
+    navController: NavHostController,
+    windowSizeClass: WindowSizeClass
+) {
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.route
@@ -52,7 +56,7 @@ fun AppNavHost(navController: NavHostController) {
                 }
             }
         }
-        addMainGraph(navController)
+        addMainGraph(navController, windowSizeClass)
 
         composable(
             route = Screen.Detail.route + "/{id}",
@@ -73,23 +77,29 @@ fun AppNavHost(navController: NavHostController) {
                     else -> DetailScreen(
                         item = item!!,
                         onToggleFavorite = { viewModel.toggleFavourite(item!!) },
-                        onBack = { navController.popBackStack() }
+                        onBack = { navController.popBackStack() },
+                        windowSizeClass = windowSizeClass
                     )
                 }
             }
         }
 
         composable(Screen.Items.route) {
-            ItemScreen(navController)
+            ItemScreen(navController, windowSizeClass)
         }
     }
 }
 
-fun NavGraphBuilder.addMainGraph(navController: NavHostController) {
+
+fun NavGraphBuilder.addMainGraph(
+    navController: NavHostController,
+    windowSizeClass: WindowSizeClass
+) {
     composable(Screen.Main.route) {
         MainScreen(navController)
     }
     composable(Screen.Favourites.route) {
-        FavouritesScreen(navController)
+        FavouritesScreen(navController, windowSizeClass)
     }
 }
+
