@@ -1,7 +1,13 @@
-Stashly helps you store, organize, and secure your files and notes.
-Features include:
+Stashly is a simple Android app to save, organize, and secure your links, notes, and files in one place.
 
-- Easy-to-use interface
-- Offline access
-- Import/export your essentials
-- Material You theming
+Features
+
+- Save and manage links, notes, and files
+
+- Secure Vault for sensitive data (offline access)
+
+- Import and export essentials with ease
+
+- Material You theming and beautiful dark mode
+
+- Lightweight, fast, and privacy-friendly (no ads, no trackers)

@@ -44,11 +44,13 @@ fun StashlyBottomBar(
                     selected = selected,
                     onClick = {
                         navController.navigate(screen.route) {
-                            launchSingleTop = true
-                            restoreState = true
+
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
+                            launchSingleTop = true
+                            restoreState = true
+
                         }
                     },
                     icon = {

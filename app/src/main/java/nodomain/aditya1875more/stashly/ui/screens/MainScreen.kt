@@ -56,11 +56,10 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
         topBar = { StashlyAppBar() },
         bottomBar = { StashlyBottomBar(navController) },
         floatingActionButton = {
-            MediumFloatingActionButton(onClick = { showAddBookmarkSheet = true }) {
+            FloatingActionButton(onClick = { showAddBookmarkSheet = true }) {
                 Icon(
                     Icons.Filled.Add,
-                    contentDescription = "Localized description",
-                    modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
+                    contentDescription = "Localized description"
                 )
             }
         }

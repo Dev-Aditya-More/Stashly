@@ -18,8 +18,8 @@ android {
         applicationId = "nodomain.aditya1875more.stashly"
         minSdk = 25
         targetSdk = 36
-        versionCode = 12
-        versionName = "2.0.1"
+        versionCode = 13
+        versionName = "2.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.coil)
 
     implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.compose.ui.text.google.fonts)
     ksp(libs.androidx.room.compiler)
     implementation(libs.kmpalette.core)
     implementation(libs.androidx.room.runtime)

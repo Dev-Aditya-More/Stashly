@@ -35,7 +35,7 @@ fun ReplaceFileButton(
     }
 
     Button(
-        onClick = { filePickerLauncher.launch("image/*") },
+        onClick = { filePickerLauncher.launch("*/*") },
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
     ) {

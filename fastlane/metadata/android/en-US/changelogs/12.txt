@@ -1,4 +1,0 @@
-v2.0.1
-- Fixed UX bugs
-- Improved UI responsiveness
-- Updated dependencies

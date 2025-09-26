@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
-            AnchorTheme {
+            AnchorTheme(useMediumContrast = true) {
 
                 val darkTheme = isSystemInDarkTheme()
                 SetSystemBars(lightIcons = darkTheme)
