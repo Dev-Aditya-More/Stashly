@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -66,6 +67,79 @@ fun SavedItemCard(
     val viewModel: MainViewModel = koinViewModel()
     val context = LocalContext.current
 
+    // ---------- EDIT DIALOG ----------
+    if (isEditing) {
+        AlertDialog(
+            onDismissRequest = { isEditing = false },
+            title = { Text("Edit Item") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = editedTitle,
+                        onValueChange = { editedTitle = it },
+                        label = { Text("Title") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    when (item.contentType) {
+                        ContentType.LINK -> {
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = editedUrl,
+                                onValueChange = { editedUrl = it },
+                                label = { Text("Link") },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        ContentType.TEXT -> {
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = editedText,
+                                onValueChange = { editedText = it },
+                                label = { Text("Note") },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        ContentType.FILE -> {
+                            Spacer(Modifier.height(8.dp))
+                            ReplaceFileButton(
+                                onFileReplaced = { uri, fileName ->
+                                    editedPath = uri.toString()
+                                    val updatedItem = item.copy(
+                                        filePath = editedPath,
+                                        title = fileName
+                                    )
+                                    viewModel.editItem(updatedItem)
+                                }
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    onSaveEdit(
+                        item.copy(
+                            title = editedTitle.ifBlank { item.title ?: "Untitled" },
+                            text = editedText.ifBlank { item.text },
+                            url = editedUrl.ifBlank { item.url },
+                            filePath = editedPath.ifBlank { item.filePath }
+                        )
+                    )
+                    isEditing = false
+                }) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { isEditing = false }) { Text("Cancel") }
+            }
+        )
+    }
+
+    // ---------- CARD VIEW ----------
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -98,158 +172,93 @@ fun SavedItemCard(
         elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            if (isEditing) {
-                // -------- EDIT MODE --------
-                OutlinedTextField(
-                    value = editedTitle,
-                    onValueChange = { editedTitle = it },
-                    label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                when (item.contentType) {
-                    ContentType.LINK -> {
-                        Spacer(Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = editedUrl,
-                            onValueChange = { editedUrl = it },
-                            label = { Text("link") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    ContentType.TEXT -> {
-                        Spacer(Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = editedText,
-                            onValueChange = { editedText = it },
-                            label = { Text("note") },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    ContentType.FILE -> {
-                        Spacer(Modifier.height(8.dp))
-
-                        ReplaceFileButton(
-                            onFileReplaced = { uri, fileName ->
-                                editedPath = uri.toString()
-                                val updatedItem = item.copy(
-                                    filePath = editedPath,
-                                    title = fileName
-                                )
-                                viewModel.editItem(updatedItem)
-                            }
-                        )
-                    }
+            // -------- VIEW MODE --------
+            when (item.contentType) {
+                ContentType.LINK -> {
+                    Text(
+                        text = item.title?.ifBlank { "Untitled Link" } ?: "Untitled Link",
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = item.url?.ifBlank { "No link available" } ?: "No link available",
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
 
-                Spacer(Modifier.height(8.dp))
-                Row {
-                    Button(onClick = {
-                        onSaveEdit(
-                            item.copy(
-                                title = editedTitle.ifBlank { item.title ?: "Untitled" },
-                                text = editedText.ifBlank { item.text },
-                                url = editedUrl.ifBlank { item.url },
-                                filePath = editedPath.ifBlank { item.filePath }
-                            )
-                        )
-                        isEditing = false
-                    }) { Text("Save") }
-                    Spacer(Modifier.width(8.dp))
-                    TextButton(onClick = { isEditing = false }) { Text("Cancel") }
+                ContentType.TEXT -> {
+                    Text(
+                        text = item.title?.ifBlank { "Untitled Note" } ?: "Untitled Note",
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = item.text?.ifBlank { "No text found" } ?: "No text found",
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
-            } else {
-                // -------- VIEW MODE --------
-                when (item.contentType) {
-                    ContentType.LINK -> {
-                        Text(
-                            text = item.title?.ifBlank { "Untitled Link" } ?: "Untitled Link",
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+
+                ContentType.FILE -> {
+                    val fileName = item.title ?: getReadableFileName(context,
+                        item.filePath?.toUri() ?: "".toUri()
+                    )
+                    val fileExt = getFileExtension(item.filePath)
+                    val iconRes = getFileIconRes(fileName)
+
+                    Text(
+                        text = fileName.ifBlank { "Unnamed File" },
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(iconRes),
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp)
                         )
+                        Spacer(Modifier.width(6.dp))
                         Text(
-                            text = item.url?.ifBlank { "No link available" } ?: "No link available",
+                            text = fileName.substringAfterLast('.', "Unknown").uppercase() + " file",
                             style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-
-                    ContentType.TEXT -> {
-                        Text(
-                            text = item.title?.ifBlank { "Untitled Note" } ?: "Untitled Note",
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = item.text?.ifBlank { "No text found" } ?: "No text found",
-                            style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-
-                    ContentType.FILE -> {
-                        val fileName = item.title ?: getReadableFileName(context,
-                            item.filePath?.toUri() ?: "".toUri()
-                        )
-                        val fileExt = getFileExtension(item.filePath)
-                        val iconRes = getFileIconRes(fileName)
-
-                        Text(
-                            text = fileName.ifBlank { "Unnamed File" },
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Image(
-                                painter = painterResource(iconRes),
-                                contentDescription = null,
-                                modifier = Modifier.size(22.dp)
-                            )
-                            Spacer(Modifier.width(6.dp))
-                            Text(
-                                text = fileName.substringAfterLast('.', "Unknown").uppercase() + " file",
-                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                    }
                 }
+            }
 
-                Spacer(Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    IconButton(onClick = { isEditing = true }) {
-                        Icon(
-                            painter = painterResource(R.drawable.edit),
-                            contentDescription = "Edit",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    IconButton(onClick = { onDelete(item) }) {
-                        Icon(
-                            painter = painterResource(R.drawable.delete),
-                            contentDescription = "Delete",
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                    }
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = { isEditing = true }) {
+                    Icon(
+                        painter = painterResource(R.drawable.edit),
+                        contentDescription = "Edit",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                IconButton(onClick = { onDelete(item) }) {
+                    Icon(
+                        painter = painterResource(R.drawable.delete),
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.error
+                    )
                 }
             }
         }
     }
 }
-
 
 fun getReadableFileName(context: Context, uri: Uri): String {
     return try {

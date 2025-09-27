@@ -26,10 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,6 +42,8 @@ import coil.request.ImageRequest
 import nodomain.aditya1875more.stashly.data.local.ContentType
 import nodomain.aditya1875more.stashly.data.local.SavedItem
 import nodomain.aditya1875more.stashly.ui.components.ExpandableText
+import nodomain.aditya1875more.stashly.utils.HapticEvent
+import nodomain.aditya1875more.stashly.utils.rememberHapticManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,15 +55,25 @@ fun DetailScreen(
 ) {
     val context = LocalContext.current
     val clipboard = LocalClipboardManager.current
+    val haptics = rememberHapticManager()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Details") },
                 actions = {
-                    IconButton(onClick = onToggleFavorite, modifier = Modifier.padding(end = 15.dp)) {
-                        if (item.isFavorite) Icon(Icons.Default.Star, contentDescription = "Favourite")
-                        else Icon(Icons.Default.StarBorder, contentDescription = "Favourite")
+                    IconButton(
+                        onClick = {
+                            onToggleFavorite()
+                            haptics(HapticEvent.TAP)
+                        },
+                        modifier = Modifier.padding(end = 15.dp)
+                    ) {
+                        if (item.isFavorite) {
+                            Icon(Icons.Default.Star, contentDescription = "Favourite")
+                        } else {
+                            Icon(Icons.Default.StarBorder, contentDescription = "Favourite")
+                        }
                     }
                 },
                 navigationIcon = {

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import nodomain.aditya1875more.stashly.data.local.Bookmark
 import nodomain.aditya1875more.stashly.data.local.ContentType
 import nodomain.aditya1875more.stashly.data.local.SavedItem
@@ -44,7 +45,7 @@ class MainViewModel(
 
     fun saveLink(urlItem: SavedItem, fetched: LinkPreview?) {
         viewModelScope.launch(Dispatchers.IO) {
-            _isLoading.value = true
+            withContext(Dispatchers.Main) { _isLoading.value = true }
             try {
                 repository.saveItem(
                     urlItem.copy(
@@ -57,7 +58,7 @@ class MainViewModel(
             } catch (e: Exception) {
                 repository.saveItem(urlItem.copy(title = "Untitled"))
             } finally {
-                _isLoading.value = false
+                withContext(Dispatchers.Main) { _isLoading.value = false }
             }
         }
     }

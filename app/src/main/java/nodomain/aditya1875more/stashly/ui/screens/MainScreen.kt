@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -34,6 +35,7 @@ import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
 import nodomain.aditya1875more.stashly.utils.autoCorrectUrl
 import nodomain.aditya1875more.stashly.utils.classifyInput
 import nodomain.aditya1875more.stashly.utils.normalizeUrl
+import nodomain.aditya1875more.stashly.utils.rememberHapticManager
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class,
@@ -48,7 +50,7 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     var showAddBookmarkSheet by remember { mutableStateOf(false) }
-    val loading by viewModel.isLoading.collectAsState()
+    val loading by viewModel.isLoading.collectAsStateWithLifecycle()
     var fetchMetadata by remember { mutableStateOf<LinkPreview?>(null) }
 
     Scaffold(
@@ -90,18 +92,23 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
 
                                     if (isValidUrl(corrected)) {
                                         scope.launch {
-                                            fetchMetadata = fetchLinkPreview(corrected)
-                                        }
+                                            // Fetch metadata and wait for it
+                                            val metadata = fetchLinkPreview(corrected)
 
-                                        viewModel.saveLink(
-                                            SavedItem(
-                                                url = corrected,
-                                                contentType = ContentType.LINK,
-                                            ), fetchMetadata
-                                        )
-                                        text = ""
+                                            // Now save with metadata
+                                            viewModel.saveLink(
+                                                SavedItem(
+                                                    url = corrected,
+                                                    contentType = ContentType.LINK,
+                                                ), metadata
+                                            )
+
+                                            // Clear input
+                                            text = ""
+                                        }
                                     } else isError = true
                                 }
+
                                 ContentType.TEXT -> {
                                     if (text.isBlank()) {
                                         isError = true
