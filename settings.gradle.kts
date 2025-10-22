@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Anchor"
+rootProject.name = "Stashly"
 include(":app")

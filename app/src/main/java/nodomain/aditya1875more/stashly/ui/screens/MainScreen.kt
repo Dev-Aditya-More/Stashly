@@ -93,7 +93,7 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                                     if (isValidUrl(corrected)) {
                                         scope.launch {
                                             // Fetch metadata and wait for it
-                                            val metadata = fetchLinkPreview(corrected)
+                                            val metadata = fetchMetadata
 
                                             // Now save with metadata
                                             viewModel.saveLink(
