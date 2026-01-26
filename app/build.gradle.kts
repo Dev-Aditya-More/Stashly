@@ -76,6 +76,7 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.jsoup)
 
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.compose.animation:animation-core:1.7.0-alpha07")
     implementation(libs.androidx.compose.material3.window.size.class1)
