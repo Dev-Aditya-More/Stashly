@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicator
@@ -21,22 +22,28 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import nodomain.aditya1875more.stashly.ui.viewmodels.ThemeViewModel
 import nodomain.aditya1875more.stashly.ui.screens.DetailScreen
 import nodomain.aditya1875more.stashly.ui.screens.FavouritesScreen
 import nodomain.aditya1875more.stashly.ui.screens.ItemScreen
 import nodomain.aditya1875more.stashly.ui.screens.MainScreen
+import nodomain.aditya1875more.stashly.ui.screens.SplashScreen
+import nodomain.aditya1875more.stashly.ui.screens.ThemeSettingsScreen
+import nodomain.aditya1875more.stashly.ui.viewmodels.FavouriteViewModel
 import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 // Define your routes safely
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
-    object Splash : Screen("splash", "", Icons.Default.Home) // no bottom bar
+    object Splash : Screen("splash", "", Icons.Default.Home)
     object Main : Screen("main", "Home", Icons.Default.Home)
     object Favourites : Screen("favourites", "Favourites", Icons.Default.Star)
     object Detail : Screen("detail", "", Icons.Default.Home) {
         fun createRoute(id: Int) = "$route/$id"
     }
     object Items : Screen("items", "", Icons.Default.Home)
+
+    object ThemeSettings : Screen("theme_settings", "Theme", Icons.Default.Settings)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -69,17 +76,20 @@ fun AppNavHost(
                 }
             } else {
                 val viewModel: MainViewModel = koinViewModel()
+                val favViewModel : FavouriteViewModel = koinViewModel()
                 val item by viewModel.getItemById(id).collectAsStateWithLifecycle(initialValue = null)
+                val currentItem = item ?: return@composable
                 when (item) {
-                    null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        LoadingIndicator()
-                    }
-                    else -> DetailScreen(
-                        item = item!!,
-                        onToggleFavorite = { viewModel.toggleFavourite(item!!) },
-                        onBack = { navController.popBackStack() },
-                        windowSizeClass = windowSizeClass
-                    )
+                    else ->
+                        DetailScreen(
+                            item = currentItem,
+                            onToggleFavorite = { id, fav ->
+                                favViewModel.toggleFavourite(id, fav)
+                            },
+                            onBack = { navController.popBackStack() },
+                            windowSizeClass = windowSizeClass
+                        )
+
                 }
             }
         }
@@ -100,6 +110,13 @@ fun NavGraphBuilder.addMainGraph(
     }
     composable(Screen.Favourites.route) {
         FavouritesScreen(navController, windowSizeClass)
+    }
+    composable(Screen.ThemeSettings.route) {
+        val themeViewModel: ThemeViewModel = koinViewModel()
+        ThemeSettingsScreen(
+            themeViewModel = themeViewModel,
+            navController = navController
+        )
     }
 }
 

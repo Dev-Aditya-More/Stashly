@@ -33,16 +33,6 @@ class MainViewModel(
         repository.getAllItems()
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    val favourites: StateFlow<List<SavedItem>> =
-        repository.getFavourites()
-            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
-
-    fun toggleFavourite(item: SavedItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.toggleFavourite(item.id, !item.isFavorite)
-        }
-    }
-
     fun saveLink(urlItem: SavedItem, fetched: LinkPreview?) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { _isLoading.value = true }

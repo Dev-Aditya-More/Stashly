@@ -23,11 +23,10 @@ import nodomain.aditya1875more.stashly.Screen
 fun StashlyBottomBar(
     navController: NavHostController
 ) {
-    val bottomBarScreens = listOf(Screen.Main, Screen.Favourites)
+    val bottomBarScreens = listOf(Screen.Main, Screen.Favourites, Screen.ThemeSettings)
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination?.route
-
 
     Box(
         modifier = Modifier
@@ -43,21 +42,19 @@ fun StashlyBottomBar(
                 NavigationBarItem(
                     selected = selected,
                     onClick = {
-                        navController.navigate(screen.route) {
-
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                        if (currentDestination != screen.route) {
+                            navController.navigate(screen.route) {
+                                popUpTo(Screen.Main.route) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
                             }
-                            launchSingleTop = true
-                            restoreState = true
-
                         }
                     },
                     icon = {
                         Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                            ,
+                            modifier = Modifier.size(40.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(

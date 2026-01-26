@@ -154,8 +154,8 @@ fun SavedItemCard(
             .background(
                 brush = Brush.verticalGradient(
                     listOf(
-                        Color.White.copy(alpha = 0.1f),
-                        Color.Black.copy(alpha = 0.5f)
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.1f),
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                     )
                 )
             )
@@ -163,8 +163,8 @@ fun SavedItemCard(
                 width = 1.dp,
                 brush = Brush.verticalGradient(
                     listOf(
-                        Color.White.copy(alpha = 0.2f),
-                        Color.Black.copy(alpha = 0.1f)
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.1f),
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                     )
                 ),
                 shape = RoundedCornerShape(20.dp)
@@ -198,7 +198,7 @@ fun SavedItemCard(
                     )
                     Text(
                         text = item.text?.ifBlank { "No text found" } ?: "No text found",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
+                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface),
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )

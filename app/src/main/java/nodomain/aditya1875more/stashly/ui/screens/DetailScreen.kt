@@ -1,13 +1,23 @@
 package nodomain.aditya1875more.stashly.ui.screens
 
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
-import android.util.Log
-import nodomain.aditya1875more.stashly.R
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -18,27 +28,38 @@ import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
-import androidx.compose.material3.*
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import androidx.core.net.toUri
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import kotlinx.coroutines.launch
+import nodomain.aditya1875more.stashly.R
 import nodomain.aditya1875more.stashly.data.local.ContentType
 import nodomain.aditya1875more.stashly.data.local.SavedItem
 import nodomain.aditya1875more.stashly.ui.components.ExpandableText
@@ -49,12 +70,12 @@ import nodomain.aditya1875more.stashly.utils.rememberHapticManager
 @Composable
 fun DetailScreen(
     item: SavedItem,
-    onToggleFavorite: () -> Unit,
+    onToggleFavorite: (Int, Boolean) -> Unit,
     onBack: () -> Unit,
     windowSizeClass: WindowSizeClass
 ) {
     val context = LocalContext.current
-    val clipboard = LocalClipboardManager.current
+    val clipboard = LocalClipboard.current
     val haptics = rememberHapticManager()
 
     Scaffold(
@@ -64,7 +85,10 @@ fun DetailScreen(
                 actions = {
                     IconButton(
                         onClick = {
-                            onToggleFavorite()
+                            onToggleFavorite(
+                                item.id,
+                                !item.isFavorite
+                            )
                             haptics(HapticEvent.TAP)
                         },
                         modifier = Modifier.padding(end = 15.dp)
@@ -91,7 +115,6 @@ fun DetailScreen(
             .fillMaxSize()
 
         if (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact) {
-            // Phone: vertical layout
             Column(
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -100,7 +123,6 @@ fun DetailScreen(
                 DetailActions(item, context, clipboard)
             }
         } else {
-            // Tablet / large screens: side-by-side
             Row(
                 modifier = modifier,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -124,7 +146,7 @@ fun DetailScreen(
 
 // ------------------- CONTENT -------------------
 @Composable
-fun DetailContent(item: SavedItem, context: Context, clipboard: ClipboardManager) {
+fun DetailContent(item: SavedItem, context: Context, clipboard: Clipboard) {
     // Title
     Text(
         text = item.title ?: item.contentType.name,
@@ -269,14 +291,27 @@ fun DetailContent(item: SavedItem, context: Context, clipboard: ClipboardManager
 
 // ------------------- ACTIONS -------------------
 @Composable
-fun DetailActions(item: SavedItem, context: Context, clipboard: ClipboardManager) {
+fun DetailActions(item: SavedItem, context: Context, clipboard: Clipboard) {
+
+    val scope = rememberCoroutineScope()
     when (item.contentType) {
         ContentType.TEXT -> {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 AssistChip(
                     onClick = {
                         item.text?.let {
-                            clipboard.setText(AnnotatedString(it))
+                            scope.launch {
+                                clipboard.setClipEntry(
+                                    ClipEntry(
+                                        ClipData.newPlainText(
+                                            "",
+                                            AnnotatedString(
+                                                it
+                                            )
+                                        )
+                                    )
+                                )
+                            }
                             Toast.makeText(context, "Copied!", Toast.LENGTH_SHORT).show()
                         }
                     },
@@ -307,7 +342,22 @@ fun DetailActions(item: SavedItem, context: Context, clipboard: ClipboardManager
                     leadingIcon = { Icon(Icons.AutoMirrored.Filled.OpenInNew, null) }
                 )
                 AssistChip(
-                    onClick = { item.url?.let { clipboard.setText(AnnotatedString(it)) } },
+                    onClick = {
+                        item.url?.let {
+                            scope.launch {
+                                clipboard.setClipEntry(
+                                    ClipEntry(
+                                        ClipData.newPlainText(
+                                            "",
+                                            AnnotatedString(
+                                                it
+                                            )
+                                        )
+                                    )
+                                )
+                            }
+                        }
+                    },
                     label = { Text("Copy") },
                     leadingIcon = { Icon(Icons.Default.ContentCopy, null) }
                 )
@@ -352,7 +402,18 @@ fun DetailActions(item: SavedItem, context: Context, clipboard: ClipboardManager
                 AssistChip(
                     onClick = {
                         item.filePath?.let {
-                            clipboard.setText(AnnotatedString(it))
+                            scope.launch {
+                                clipboard.setClipEntry(
+                                    ClipEntry(
+                                        ClipData.newPlainText(
+                                            "",
+                                            AnnotatedString(
+                                                it
+                                            )
+                                        )
+                                    )
+                                )
+                            }
                             Toast.makeText(context, "Path copied!", Toast.LENGTH_SHORT).show()
                         }
                     },

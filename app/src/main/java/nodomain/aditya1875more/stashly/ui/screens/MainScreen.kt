@@ -3,27 +3,44 @@ package nodomain.aditya1875more.stashly.ui.screens
 import android.webkit.URLUtil.isValidUrl
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularWavyProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import nodomain.aditya1875more.stashly.Screen
 import nodomain.aditya1875more.stashly.data.local.ContentType
 import nodomain.aditya1875more.stashly.data.local.SavedItem
 import nodomain.aditya1875more.stashly.jsoup.LinkPreview
-import nodomain.aditya1875more.stashly.jsoup.fetchLinkPreview
 import nodomain.aditya1875more.stashly.ui.components.AddBookmarkSheet
 import nodomain.aditya1875more.stashly.ui.components.InputField
 import nodomain.aditya1875more.stashly.ui.components.LottieAnimationExample
@@ -35,7 +52,6 @@ import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
 import nodomain.aditya1875more.stashly.utils.autoCorrectUrl
 import nodomain.aditya1875more.stashly.utils.classifyInput
 import nodomain.aditya1875more.stashly.utils.normalizeUrl
-import nodomain.aditya1875more.stashly.utils.rememberHapticManager
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class,
@@ -143,7 +159,7 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                 if (isError) {
                     Text(
                         "",
-                        color = Color.Red,
+                        color = MaterialTheme.colorScheme.onError,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = 4.dp)
                     )

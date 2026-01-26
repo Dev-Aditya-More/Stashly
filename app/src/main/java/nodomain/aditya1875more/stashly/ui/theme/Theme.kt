@@ -10,7 +10,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import nodomain.aditya1875more.stashly.data.preferences.ContrastMode
+import nodomain.aditya1875more.stashly.data.preferences.DarkMode
+import nodomain.aditya1875more.stashly.data.preferences.ThemeSeed
 
+// Base Color Schemes (from your existing code)
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,
@@ -252,20 +256,42 @@ val unspecified_scheme = ColorFamily(
 )
 
 @Composable
-fun AnchorTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+fun StashlyTheme(
+    darkMode: DarkMode = DarkMode.SYSTEM,
     dynamicColor: Boolean = true,
-    useMediumContrast: Boolean = false, // 🔹 add this toggle
+    contrastMode: ContrastMode = ContrastMode.STANDARD,
+    seedColor: ThemeSeed? = null,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
 
+    // Determine if dark theme should be used
+    val darkTheme = when (darkMode) {
+        DarkMode.LIGHT -> false
+        DarkMode.DARK -> true
+        DarkMode.SYSTEM -> isSystemInDarkTheme()
+    }
+
     val colorScheme = when {
+        // Dynamic color (Material You) on Android 12+
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) dynamicDarkColorScheme(context)
+            else dynamicLightColorScheme(context)
         }
-        darkTheme -> if (useMediumContrast) mediumContrastDarkColorScheme else darkScheme
-        else -> if (useMediumContrast) mediumContrastLightColorScheme else lightScheme
+
+        // Custom seed color schemes would go here in the future
+        // For now, we use the base schemes with contrast adjustments
+        darkTheme -> when (contrastMode) {
+            ContrastMode.STANDARD -> darkScheme
+            ContrastMode.MEDIUM -> mediumContrastDarkColorScheme
+            ContrastMode.HIGH -> highContrastDarkColorScheme
+        }
+
+        else -> when (contrastMode) {
+            ContrastMode.STANDARD -> lightScheme
+            ContrastMode.MEDIUM -> mediumContrastLightColorScheme
+            ContrastMode.HIGH -> highContrastLightColorScheme
+        }
     }
 
     MaterialTheme(
@@ -274,5 +300,3 @@ fun AnchorTheme(
         content = content
     )
 }
-
-
