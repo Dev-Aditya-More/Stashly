@@ -37,29 +37,33 @@ fun UploadFileField(
         contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let {
-            context.contentResolver.takePersistableUriPermission(
-                it,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    it,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (e: SecurityException) {
+                Log.e("UploadFileField", "Failed to take persistable permission", e)
+            }
+
             onFilePicked(it, context)
+
             val canOpen = try {
-                context.contentResolver.openInputStream(uri)?.close()
+                context.contentResolver.openInputStream(it)?.close()
                 true
             } catch (e: Exception) {
+                Log.e("UploadFileField", "Cannot open stream", e)
                 false
             }
             Log.d("DEBUG", "Can open stream: $canOpen")
-
         }
-
     }
 
     Card(
         modifier = modifier
             .fillMaxWidth()
             .clickable { filePickerLauncher.launch(arrayOf("*/*")) }
-            .padding(horizontal = 16.dp)
-        ,
+            .padding(horizontal = 16.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {

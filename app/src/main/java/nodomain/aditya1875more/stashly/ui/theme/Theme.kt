@@ -2,10 +2,10 @@ package nodomain.aditya1875more.stashly.ui.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
@@ -14,7 +14,6 @@ import nodomain.aditya1875more.stashly.data.preferences.ContrastMode
 import nodomain.aditya1875more.stashly.data.preferences.DarkMode
 import nodomain.aditya1875more.stashly.data.preferences.ThemeSeed
 
-// Base Color Schemes (from your existing code)
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,
@@ -260,7 +259,7 @@ fun StashlyTheme(
     darkMode: DarkMode = DarkMode.SYSTEM,
     dynamicColor: Boolean = true,
     contrastMode: ContrastMode = ContrastMode.STANDARD,
-    seedColor: ThemeSeed? = null,
+    seedColor: ThemeSeed = ThemeSeed.BLUE,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -279,18 +278,32 @@ fun StashlyTheme(
             else dynamicLightColorScheme(context)
         }
 
-        // Custom seed color schemes would go here in the future
-        // For now, we use the base schemes with contrast adjustments
-        darkTheme -> when (contrastMode) {
-            ContrastMode.STANDARD -> darkScheme
-            ContrastMode.MEDIUM -> mediumContrastDarkColorScheme
-            ContrastMode.HIGH -> highContrastDarkColorScheme
-        }
+        else -> {
+            val seedColorValue = Color(seedColor.seedColor)
 
-        else -> when (contrastMode) {
-            ContrastMode.STANDARD -> lightScheme
-            ContrastMode.MEDIUM -> mediumContrastLightColorScheme
-            ContrastMode.HIGH -> highContrastLightColorScheme
+            when (contrastMode) {
+                ContrastMode.STANDARD -> {
+                    if (darkTheme) {
+                        darkColorScheme(primary = seedColorValue)
+                    } else {
+                        lightColorScheme(primary = seedColorValue)
+                    }
+                }
+                ContrastMode.MEDIUM -> {
+                    if (darkTheme) {
+                        mediumContrastDarkColorScheme
+                    } else {
+                        mediumContrastLightColorScheme
+                    }
+                }
+                ContrastMode.HIGH -> {
+                    if (darkTheme) {
+                        highContrastDarkColorScheme
+                    } else {
+                        highContrastLightColorScheme
+                    }
+                }
+            }
         }
     }
 

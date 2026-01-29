@@ -33,7 +33,6 @@ import nodomain.aditya1875more.stashly.ui.viewmodels.FavouriteViewModel
 import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-// Define your routes safely
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Splash : Screen("splash", "", Icons.Default.Home)
     object Main : Screen("main", "Home", Icons.Default.Home)

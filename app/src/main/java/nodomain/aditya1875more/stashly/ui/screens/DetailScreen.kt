@@ -119,7 +119,7 @@ fun DetailScreen(
                 modifier = modifier,
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                DetailContent(item, context, clipboard)
+                DetailContent(item, context)
                 DetailActions(item, context, clipboard)
             }
         } else {
@@ -131,7 +131,7 @@ fun DetailScreen(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    DetailContent(item, context, clipboard)
+                    DetailContent(item, context)
                 }
                 Column(
                     modifier = Modifier.weight(1f),
@@ -146,7 +146,7 @@ fun DetailScreen(
 
 // ------------------- CONTENT -------------------
 @Composable
-fun DetailContent(item: SavedItem, context: Context, clipboard: Clipboard) {
+fun DetailContent(item: SavedItem, context: Context) {
     // Title
     Text(
         text = item.title ?: item.contentType.name,

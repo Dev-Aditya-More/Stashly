@@ -4,7 +4,17 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -12,9 +22,24 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Contrast
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,11 +49,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import nodomain.aditya1875more.stashly.ui.viewmodels.ThemeViewModel
-import nodomain.aditya1875more.stashly.data.preferences.ContrastMode
 import nodomain.aditya1875more.stashly.data.preferences.DarkMode
 import nodomain.aditya1875more.stashly.data.preferences.ThemeSeed
 import nodomain.aditya1875more.stashly.ui.components.StashlyBottomBar
+import nodomain.aditya1875more.stashly.ui.viewmodels.ThemeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,7 +68,7 @@ fun ThemeSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text("Settings", style = MaterialTheme.typography.titleMedium)},
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
@@ -58,7 +82,6 @@ fun ThemeSettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             // Dark Mode Section
             item {
@@ -70,7 +93,10 @@ fun ThemeSettingsScreen(
                 }
             }
 
-            // Dynamic Color Section
+            item {
+                Spacer(modifier = Modifier.height(25.dp))
+            }
+
             item {
                 SettingsSection(title = "Material You") {
                     DynamicColorToggle(
@@ -78,6 +104,10 @@ fun ThemeSettingsScreen(
                         onToggle = { themeViewModel.setDynamicColor(it) }
                     )
                 }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(25.dp))
             }
 
             if (!dynamicColor) {
@@ -92,17 +122,16 @@ fun ThemeSettingsScreen(
             }
 
             item {
-                SettingsSection(title = "Contrast") {
-                    ContrastModeSelector(
-                        selectedMode = contrastMode,
-                        onModeSelected = { themeViewModel.setContrastMode(it) }
-                    )
-                }
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             // Preview Section
             item {
                 ThemePreview()
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(5.dp))
             }
         }
     }
@@ -174,7 +203,7 @@ private fun DarkModeOption(
 ) {
     val containerColor by animateColorAsState(
         targetValue = if (isSelected)
-            MaterialTheme.colorScheme.primaryContainer
+            MaterialTheme.colorScheme.primary
         else
             MaterialTheme.colorScheme.surfaceVariant,
         label = "container_color"
@@ -182,7 +211,7 @@ private fun DarkModeOption(
 
     val contentColor by animateColorAsState(
         targetValue = if (isSelected)
-            MaterialTheme.colorScheme.onPrimaryContainer
+            MaterialTheme.colorScheme.onPrimary
         else
             MaterialTheme.colorScheme.onSurfaceVariant,
         label = "content_color"
@@ -250,7 +279,11 @@ private fun DynamicColorToggle(
             }
             Switch(
                 checked = enabled,
-                onCheckedChange = onToggle
+                onCheckedChange = onToggle,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                )
             )
         }
     }
@@ -265,7 +298,7 @@ private fun ColorSeedSelector(
         columns = GridCells.Fixed(5),
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(170.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -309,83 +342,83 @@ private fun ColorSeedOption(
     }
 }
 
-@Composable
-private fun ContrastModeSelector(
-    selectedMode: ContrastMode,
-    onModeSelected: (ContrastMode) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        ContrastOption(
-            mode = ContrastMode.STANDARD,
-            label = "Standard",
-            isSelected = selectedMode == ContrastMode.STANDARD,
-            onClick = { onModeSelected(ContrastMode.STANDARD) },
-            modifier = Modifier.weight(1f)
-        )
-        ContrastOption(
-            mode = ContrastMode.MEDIUM,
-            label = "Medium",
-            isSelected = selectedMode == ContrastMode.MEDIUM,
-            onClick = { onModeSelected(ContrastMode.MEDIUM) },
-            modifier = Modifier.weight(1f)
-        )
-        ContrastOption(
-            mode = ContrastMode.HIGH,
-            label = "High",
-            isSelected = selectedMode == ContrastMode.HIGH,
-            onClick = { onModeSelected(ContrastMode.HIGH) },
-            modifier = Modifier.weight(1f)
-        )
-    }
-}
+//@Composable
+//private fun ContrastModeSelector(
+//    selectedMode: ContrastMode,
+//    onModeSelected: (ContrastMode) -> Unit
+//) {
+//    Row(
+//        modifier = Modifier.fillMaxWidth(),
+//        horizontalArrangement = Arrangement.spacedBy(12.dp)
+//    ) {
+//        ContrastOption(
+//            mode = ContrastMode.STANDARD,
+//            label = "Standard",
+//            isSelected = selectedMode == ContrastMode.STANDARD,
+//            onClick = { onModeSelected(ContrastMode.STANDARD) },
+//            modifier = Modifier.weight(1f)
+//        )
+//        ContrastOption(
+//            mode = ContrastMode.MEDIUM,
+//            label = "Medium",
+//            isSelected = selectedMode == ContrastMode.MEDIUM,
+//            onClick = { onModeSelected(ContrastMode.MEDIUM) },
+//            modifier = Modifier.weight(1f)
+//        )
+//        ContrastOption(
+//            mode = ContrastMode.HIGH,
+//            label = "High",
+//            isSelected = selectedMode == ContrastMode.HIGH,
+//            onClick = { onModeSelected(ContrastMode.HIGH) },
+//            modifier = Modifier.weight(1f)
+//        )
+//    }
+//}
 
-@Composable
-private fun ContrastOption(
-    mode: ContrastMode,
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val containerColor by animateColorAsState(
-        targetValue = if (isSelected)
-            MaterialTheme.colorScheme.primaryContainer
-        else
-            MaterialTheme.colorScheme.surfaceVariant,
-        label = "container_color"
-    )
-
-    val contentColor by animateColorAsState(
-        targetValue = if (isSelected)
-            MaterialTheme.colorScheme.onPrimaryContainer
-        else
-            MaterialTheme.colorScheme.onSurfaceVariant,
-        label = "content_color"
-    )
-
-    Surface(
-        modifier = modifier
-            .height(60.dp)
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(12.dp),
-        color = containerColor
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelLarge,
-                color = contentColor,
-                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
-            )
-        }
-    }
-}
+//@Composable
+//private fun ContrastOption(
+//    mode: ContrastMode,
+//    label: String,
+//    isSelected: Boolean,
+//    onClick: () -> Unit,
+//    modifier: Modifier = Modifier
+//) {
+//    val containerColor by animateColorAsState(
+//        targetValue = if (isSelected)
+//            MaterialTheme.colorScheme.primaryContainer
+//        else
+//            MaterialTheme.colorScheme.surfaceVariant,
+//        label = "container_color"
+//    )
+//
+//    val contentColor by animateColorAsState(
+//        targetValue = if (isSelected)
+//            MaterialTheme.colorScheme.onPrimaryContainer
+//        else
+//            MaterialTheme.colorScheme.onSurfaceVariant,
+//        label = "content_color"
+//    )
+//
+//    Surface(
+//        modifier = modifier
+//            .height(60.dp)
+//            .clickable(onClick = onClick),
+//        shape = RoundedCornerShape(12.dp),
+//        color = containerColor
+//    ) {
+//        Box(
+//            modifier = Modifier.fillMaxSize(),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Text(
+//                text = label,
+//                style = MaterialTheme.typography.labelLarge,
+//                color = contentColor,
+//                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+//            )
+//        }
+//    }
+//}
 
 @Composable
 private fun ThemePreview() {

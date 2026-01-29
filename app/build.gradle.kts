@@ -18,8 +18,8 @@ android {
         applicationId = "nodomain.aditya1875more.stashly"
         minSdk = 25
         targetSdk = 36
-        versionCode = 16
-        versionName = "2.0.5"
+        versionCode = 17
+        versionName = "2.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -81,6 +81,12 @@ dependencies {
     implementation("androidx.compose.animation:animation-core:1.7.0-alpha07")
     implementation(libs.androidx.compose.material3.window.size.class1)
     implementation(libs.coil.compose)
+
+    implementation(libs.androidx.work.runtime.ktx)
+// Browser communication
+    implementation(libs.androidx.browser)
+// API integrations
+    implementation(libs.retrofit)
 
     implementation(libs.coil)
 

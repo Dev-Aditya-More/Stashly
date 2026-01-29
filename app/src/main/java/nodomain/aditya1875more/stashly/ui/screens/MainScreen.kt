@@ -1,5 +1,7 @@
 package nodomain.aditya1875more.stashly.ui.screens
 
+import android.content.Intent
+import android.util.Log
 import android.webkit.URLUtil.isValidUrl
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
@@ -77,7 +79,7 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
             FloatingActionButton(onClick = { showAddBookmarkSheet = true }) {
                 Icon(
                     Icons.Filled.Add,
-                    contentDescription = "Localized description"
+                    contentDescription = "Add new item"
                 )
             }
         }
@@ -88,9 +90,13 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
+                    .padding(paddingValues)
+                    .padding(horizontal = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Spacer(Modifier.height(16.dp))
+
+                // Input field
                 InputField(
                     value = text,
                     onValueChange = {
@@ -108,10 +114,8 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
 
                                     if (isValidUrl(corrected)) {
                                         scope.launch {
-                                            // Fetch metadata and wait for it
                                             val metadata = fetchMetadata
 
-                                            // Now save with metadata
                                             viewModel.saveLink(
                                                 SavedItem(
                                                     url = corrected,
@@ -119,7 +123,6 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                                                 ), metadata
                                             )
 
-                                            // Clear input
                                             text = ""
                                         }
                                     } else isError = true
@@ -158,20 +161,38 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
 
                 if (isError) {
                     Text(
-                        "",
-                        color = MaterialTheme.colorScheme.onError,
+                        "Please enter a valid URL",
+                        color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(top = 4.dp)
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .padding(start = 8.dp, top = 4.dp)
                     )
                 }
 
-                Spacer(Modifier.height(16.dp))
-                Text("or", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(12.dp))
 
+                Text(
+                    "or",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                // Upload file button
                 UploadFileField(
                     modifier = Modifier.fillMaxWidth(),
                     onFilePicked = { uri, context ->
+                        try {
+                            context.contentResolver.takePersistableUriPermission(
+                                uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            )
+                        } catch (e: SecurityException) {
+                            Log.e("MainScreen", "Failed to take persistable permission", e)
+                        }
+
                         val fileName = uri.lastPathSegment ?: "File"
                         viewModel.saveFile(
                             SavedItem(
@@ -183,7 +204,7 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                     }
                 )
 
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(20.dp))
 
                 if (items.isEmpty()) {
                     LottieAnimationExample(
@@ -206,23 +227,24 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                         }
                     )
                 }
+            }
 
-                if (showAddBookmarkSheet) {
-                    ModalBottomSheet(
-                        onDismissRequest = { showAddBookmarkSheet = false }
-                    ) {
-                        AddBookmarkSheet(
-                            onSave = { url, metadata ->
-                                val normalized = normalizeUrl(url)
-                                val corrected = autoCorrectUrl(normalized)
-                                if (isValidUrl(corrected)) {
-                                    viewModel.saveBookmark(corrected, metadata)
-                                    showAddBookmarkSheet = false
-                                }
-                            },
-                            onDismiss = { showAddBookmarkSheet = false }
-                        )
-                    }
+            // Modal bottom sheet
+            if (showAddBookmarkSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showAddBookmarkSheet = false }
+                ) {
+                    AddBookmarkSheet(
+                        onSave = { url, metadata ->
+                            val normalized = normalizeUrl(url)
+                            val corrected = autoCorrectUrl(normalized)
+                            if (isValidUrl(corrected)) {
+                                viewModel.saveBookmark(corrected, metadata)
+                                showAddBookmarkSheet = false
+                            }
+                        },
+                        onDismiss = { showAddBookmarkSheet = false }
+                    )
                 }
             }
 

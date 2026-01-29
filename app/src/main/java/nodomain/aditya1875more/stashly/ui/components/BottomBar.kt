@@ -30,10 +30,9 @@ fun StashlyBottomBar(
 
     Box(
         modifier = Modifier
-            .shadow(10.dp, RoundedCornerShape(24.dp))
+            .shadow(5.dp, RoundedCornerShape(24.dp))
     ) {
         NavigationBar(
-            tonalElevation = 0.dp,
             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
         ) {
             bottomBarScreens.forEach { screen ->
