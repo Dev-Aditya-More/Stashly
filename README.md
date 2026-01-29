@@ -57,8 +57,14 @@ https://github.com/user-attachments/assets/4411b1f7-de44-4cd6-bb40-f607b2805c72
 
 ---
 
+## Get us a Coffee ❤️
+
+[![BuyMeACoffee](https://raw.githubusercontent.com/pachadotdev/buymeacoffee-badges/main/bmc-donate-yellow.svg)](https://buymeacoffee.com/aditya1875q)
+
+---
+
 Follow the journey on twitter here:
-[my tweets](https://x.com/Adityaastwt)
+[Twitter](https://x.com/Adityaastwt)
 
 
 Made with ❤️ by Dev-Aditya-More
