@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "460834505774",
+    "project_id": "cashyndo",
+    "storage_bucket": "cashyndo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460834505774:android:68ea7525799c4093934bbf",
+        "android_client_info": {
+          "package_name": "com.example.cashyndoapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "460834505774-1eq5av10jaaeu1dmomda5d0nses9t9g9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cashyndoapp",
+            "certificate_hash": "db2e8b9c168f46f4047fa075c08b92f4594470a1"
+          }
+        },
+        {
+          "client_id": "460834505774-hc3s4tet9nebbclu4f7eaehu23huvb38.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCM05csqKCJU5jAYU7-jBYNktB9Npf5g_w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "460834505774-hc3s4tet9nebbclu4f7eaehu23huvb38.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460834505774:android:05fa83d543a593f7934bbf",
+        "android_client_info": {
+          "package_name": "nodomain.aditya1875more.stashly"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "460834505774-hc3s4tet9nebbclu4f7eaehu23huvb38.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCM05csqKCJU5jAYU7-jBYNktB9Npf5g_w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "460834505774-hc3s4tet9nebbclu4f7eaehu23huvb38.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

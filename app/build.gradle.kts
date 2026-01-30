@@ -1,4 +1,4 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.aboutLibraries)
     alias(libs.plugins.ksp)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -24,9 +25,34 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    kotlin {
-        compilerOptions {
-            jvmToolchain(17)
+    flavorDimensions += "distribution"
+
+    productFlavors {
+
+        create("play") {
+            dimension = "distribution"
+            applicationIdSuffix = ".play"
+            versionNameSuffix = "-play"
+            buildConfigField("boolean", "USE_FIREBASE", "true")
+        }
+
+        create("foss") {
+            dimension = "distribution"
+            isDefault = true
+            buildConfigField("boolean", "USE_FIREBASE", "false")
+        }
+    }
+
+    sourceSets {
+        getByName("play") {
+            java.srcDir("src/play/java")
+            res.srcDir("src/play/res")
+            manifest.srcFile("src/play/AndroidManifest.xml")
+        }
+        getByName("foss") {
+            java.srcDir("src/foss/java")
+            res.srcDir("src/foss/res")
+            manifest.srcFile("src/foss/AndroidManifest.xml")
         }
     }
 
@@ -41,24 +67,28 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+
+    kotlin { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
+
     buildFeatures {
-        buildConfig = true
         compose = true
+        buildConfig = true
     }
 
     dependenciesInfo {
-        // Disables dependency metadata when building APKs (for IzzyOnDroid/F-Droid)
         includeInApk = false
-        // Disables dependency metadata when building Android App Bundles (for Google Play)
         includeInBundle = false
     }
+}
+
+// Future-proof: apply Google services only for Play builds
+if (gradle.startParameter.taskNames.any { it.lowercase().contains("play") }) {
+    apply(plugin = "com.google.gms.google-services")
 }
 
 dependencies {
@@ -75,74 +105,42 @@ dependencies {
 
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.jsoup)
-
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.navigation.compose)
-    implementation("androidx.compose.animation:animation-core:1.7.0-alpha07")
     implementation(libs.androidx.compose.material3.window.size.class1)
     implementation(libs.coil.compose)
-
     implementation(libs.androidx.work.runtime.ktx)
-// Browser communication
     implementation(libs.androidx.browser)
-// API integrations
+
     implementation(libs.retrofit)
-
     implementation(libs.coil)
-
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.kmpalette.core)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.composeIcons.fontAwesome)
-    implementation(libs.zoomable)
-    implementation(libs.androidx.datastore.preferences.core)
-    implementation(libs.datetime)
-    implementation(libs.jetbrains.compose.navigation)
-    implementation(libs.materialKolor)
-    implementation(libs.kotlinx.serialization.json)
-    implementation(libs.androidx.lifecycle.viewmodel)
-    implementation(libs.androidx.lifecycle.runtimeCompose)
-    implementation(libs.landscapist.coil)
-    implementation(libs.landscapist.placeholder)
-    implementation(libs.colorpicker.compose)
-    implementation(libs.ksoup)
-    implementation(libs.hypnoticcanvas)
-    implementation(libs.aboutLibraries)
-    implementation(libs.aboutLibraries.compose.m3)
-    implementation(libs.filekit.core)
-    implementation(libs.filekit.dialogs.compose)
+
+    implementation (libs.androidx.glance.appwidget)
+    implementation (libs.androidx.work.runtime.ktx)
 
     implementation(libs.koin.core)
     implementation(libs.koin.compose)
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.koin.compose.viewmodel.navigation)
 
-    implementation(libs.ktor.client.core)
-    implementation(libs.ktor.client.okhttp)
-    implementation(libs.ktor.client.content.negotiation)
-    implementation(libs.ktor.client.logging)
-    implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.ktor.client.auth)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.datetime)
+
+    add("playImplementation", libs.firebase.analytics)
+    add("playImplementation", platform(libs.firebase.bom))
+    add("playImplementation", libs.firebase.messaging)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
-    androidTestImplementation(libs.screengrab)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    implementation(libs.okhttp)
-    implementation(libs.logging.interceptor)
-    implementation(libs.moshi)
-    implementation(libs.moshi.kotlin)
-
-    implementation(libs.lottie.compose)
-    implementation(libs.accompanist.systemuicontroller)
 }
 
 java {
@@ -150,3 +148,5 @@ java {
         languageVersion = JavaLanguageVersion.of(17)
     }
 }
+
+tasks.whenTaskAdded { if (name.contains("ArtProfile")) { enabled = false } }
