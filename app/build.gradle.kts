@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -84,6 +83,12 @@ android {
         includeInApk = false
         includeInBundle = false
     }
+
+    packaging {
+        resources {
+            excludes += "META-INF/versions/**"
+        }
+    }
 }
 
 // Future-proof: apply Google services only for Play builds
@@ -93,6 +98,7 @@ if (gradle.startParameter.taskNames.any { it.lowercase().contains("play") }) {
 
 dependencies {
 
+    implementation("com.google.re2j:re2j:1.7")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -112,14 +118,33 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.browser)
 
+    implementation(libs.lottie.compose)
+    implementation(libs.moshi)
+    implementation(libs.okhttp)
+    implementation(libs.moshi.kotlin)
+    implementation(libs.materialKolor)
+    implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.logging.interceptor)
+    implementation(libs.jetbrains.compose.navigation)
+    implementation(libs.colorpicker.compose)
+    implementation(libs.landscapist.coil)
+    implementation(libs.landscapist.placeholder)
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.auth)
+
     implementation(libs.retrofit)
     implementation(libs.coil)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.compose.ui.text.google.fonts)
     ksp(libs.androidx.room.compiler)
 
-    implementation (libs.androidx.glance.appwidget)
-    implementation (libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.glance.appwidget)
+    implementation(libs.androidx.work.runtime.ktx)
 
     implementation(libs.koin.core)
     implementation(libs.koin.compose)
@@ -149,4 +174,8 @@ java {
     }
 }
 
-tasks.whenTaskAdded { if (name.contains("ArtProfile")) { enabled = false } }
+tasks.whenTaskAdded {
+    if (name.contains("ArtProfile")) {
+        enabled = false
+    }
+}

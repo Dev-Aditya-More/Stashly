@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package nodomain.aditya1875more.stashly.ui.components
 
 import androidx.compose.foundation.layout.Box
