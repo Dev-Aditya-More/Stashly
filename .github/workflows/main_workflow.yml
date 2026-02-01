@@ -1,4 +1,6 @@
 name: 🚨 Main WorkFlow
+permissions:
+  contents: read
 
 on:
   pull_request:
