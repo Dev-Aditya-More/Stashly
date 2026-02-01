@@ -18,8 +18,8 @@ android {
         applicationId = "nodomain.aditya1875more.stashly"
         minSdk = 25
         targetSdk = 36
-        versionCode = 17
-        versionName = "2.0.6"
+        versionCode = 18
+        versionName = "2.0.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -98,7 +98,7 @@ if (gradle.startParameter.taskNames.any { it.lowercase().contains("play") }) {
 
 dependencies {
 
-    implementation("com.google.re2j:re2j:1.7")
+    implementation(libs.re2j)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
