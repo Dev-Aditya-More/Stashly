@@ -38,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -51,6 +52,7 @@ import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -63,6 +65,7 @@ import nodomain.aditya1875more.stashly.R
 import nodomain.aditya1875more.stashly.data.local.ContentType
 import nodomain.aditya1875more.stashly.data.local.SavedItem
 import nodomain.aditya1875more.stashly.ui.components.ExpandableText
+import nodomain.aditya1875more.stashly.ui.viewmodels.getFileName
 import nodomain.aditya1875more.stashly.utils.HapticEvent
 import nodomain.aditya1875more.stashly.utils.rememberHapticManager
 
@@ -81,7 +84,15 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Details") },
+                title = { Text(
+                    "Details",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
+                    color = MaterialTheme.colorScheme.onSurface
+                )},
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
                 actions = {
                     IconButton(
                         onClick = {
@@ -147,9 +158,19 @@ fun DetailScreen(
 // ------------------- CONTENT -------------------
 @Composable
 fun DetailContent(item: SavedItem, context: Context) {
-    // Title
+
+    val displayTitle = remember(item) {
+        if (item.contentType == ContentType.FILE) {
+            item.filePath?.toUri()?.let { uri ->
+                getFileName(context, uri)
+            } ?: item.title ?: item.contentType.name
+        } else {
+            item.title ?: item.contentType.name
+        }
+    }
+
     Text(
-        text = item.title ?: item.contentType.name,
+        text = displayTitle,
         style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.onSurface,
         modifier = Modifier.padding(horizontal = 4.dp)
@@ -215,12 +236,15 @@ fun DetailContent(item: SavedItem, context: Context) {
         }
 
         ContentType.FILE -> {
-            val fileName = item.filePath?.substringAfterLast("/") ?: "Unknown file"
-            val isImage = fileName.endsWith(".png", true) ||
-                    fileName.endsWith(".jpg", true) ||
-                    fileName.endsWith(".jpeg", true) ||
-                    fileName.endsWith(".gif", true) ||
-                    fileName.endsWith(".webp", true)
+            val fileUri = remember(item.filePath) { item.filePath?.toUri() }
+            val fileName = remember(fileUri) {
+                fileUri?.let { getFileName(context, it) } ?: item.title ?: "Unknown file"
+            }
+
+            val mimeType = remember(fileUri) {
+                fileUri?.let { context.contentResolver.getType(it) }
+            }
+            val isImage = mimeType?.startsWith("image/") == true
 
             Card(
                 shape = RoundedCornerShape(20.dp),
@@ -229,21 +253,20 @@ fun DetailContent(item: SavedItem, context: Context) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column {
-                    if (isImage) {
-                        val painter = rememberAsyncImagePainter(
-                            ImageRequest.Builder(context)
-                                .data(item.filePath?.toUri())
+                    if (isImage && fileUri != null) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(context)
+                                .data(fileUri)
                                 .crossfade(true)
-                                .build()
-                        )
-                        Image(
-                            painter = painter,
+                                .build(),
                             contentDescription = "Image Preview",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(180.dp)
                                 .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
+                            error = painterResource(R.drawable.ic_link),
+                            placeholder = painterResource(R.drawable.ic_link)
                         )
                     } else {
                         Box(
@@ -266,17 +289,25 @@ fun DetailContent(item: SavedItem, context: Context) {
                         Text(
                             text = fileName,
                             style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1,
+                            maxLines = 2,
                             overflow = TextOverflow.Ellipsis,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Spacer(Modifier.height(8.dp))
-                        val fileInfo = remember(item.filePath) {
-                            val uri = item.filePath?.toUri()
-                            val type = uri?.let { context.contentResolver.getType(it) } ?: "Unknown type"
-                            val size = uri?.let {
-                                context.contentResolver.openFileDescriptor(it, "r")?.use { pfd ->
-                                    "${(pfd.statSize / 1024)} KB"
+                        val fileInfo = remember(fileUri) {
+                            val type = mimeType ?: "Unknown type"
+                            val size = fileUri?.let {
+                                try {
+                                    context.contentResolver.openFileDescriptor(it, "r")?.use { pfd ->
+                                        val sizeKB = pfd.statSize / 1024
+                                        if (sizeKB > 1024) {
+                                            "${String.format("%.1f", sizeKB / 1024f)} MB"
+                                        } else {
+                                            "$sizeKB KB"
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    null
                                 }
                             } ?: ""
                             listOf(type, size).filter { it.isNotEmpty() }.joinToString(" • ")

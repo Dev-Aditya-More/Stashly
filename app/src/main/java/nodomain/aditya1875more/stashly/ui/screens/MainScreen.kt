@@ -25,6 +25,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,11 +39,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import nodomain.aditya1875more.stashly.Screen
 import nodomain.aditya1875more.stashly.data.local.ContentType
 import nodomain.aditya1875more.stashly.data.local.SavedItem
 import nodomain.aditya1875more.stashly.jsoup.LinkPreview
+import nodomain.aditya1875more.stashly.jsoup.fetchLinkPreview
 import nodomain.aditya1875more.stashly.ui.components.AddBookmarkSheet
 import nodomain.aditya1875more.stashly.ui.components.InputField
 import nodomain.aditya1875more.stashly.ui.components.LottieAnimationExample
@@ -71,6 +74,8 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
     val loading by viewModel.isLoading.collectAsStateWithLifecycle()
     var fetchMetadata by remember { mutableStateOf<LinkPreview?>(null) }
 
+    var showSaved by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = { StashlyAppBar() },
@@ -85,18 +90,27 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
         }
     ) { paddingValues ->
 
+        var showCheck by remember { mutableStateOf(false) }
+
+        LaunchedEffect(showSaved) {
+            if (showSaved) {
+                showCheck = true
+                delay(1500)
+                showCheck = false
+            }
+            showSaved = false
+        }
+
         Box(modifier = Modifier.fillMaxSize()) {
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp),
+                    .padding(paddingValues),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(Modifier.height(16.dp))
 
-                // Input field
                 InputField(
                     value = text,
                     onValueChange = {
@@ -114,6 +128,7 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
 
                                     if (isValidUrl(corrected)) {
                                         scope.launch {
+                                            fetchMetadata = fetchLinkPreview(corrected)
                                             val metadata = fetchMetadata
 
                                             viewModel.saveLink(
@@ -122,10 +137,10 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                                                     contentType = ContentType.LINK,
                                                 ), metadata
                                             )
-
                                             text = ""
                                         }
                                     } else isError = true
+
                                 }
 
                                 ContentType.TEXT -> {
@@ -156,7 +171,8 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                             }
                         }
                     },
-                    isError = isError
+                    isError = isError,
+                    showSaved = showCheck
                 )
 
                 if (isError) {
@@ -166,19 +182,21 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
                             .align(Alignment.Start)
-                            .padding(start = 8.dp, top = 4.dp)
+                            .padding(start = 8.dp, top = 4.dp),
+                        fontWeight = MaterialTheme.typography.bodySmall.fontWeight
                     )
                 }
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(15.dp))
 
                 Text(
                     "or",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = MaterialTheme.typography.bodyMedium.fontWeight
                 )
 
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(15.dp))
 
                 // Upload file button
                 UploadFileField(
@@ -248,7 +266,6 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                 }
             }
 
-            // Overlay loading indicator
             if (loading) {
                 Box(
                     modifier = Modifier

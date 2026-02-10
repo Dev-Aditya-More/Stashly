@@ -7,7 +7,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.aboutLibraries)
     alias(libs.plugins.ksp)
-    id("com.google.gms.google-services")
 }
 
 android {
@@ -18,8 +17,8 @@ android {
         applicationId = "nodomain.aditya1875more.stashly"
         minSdk = 25
         targetSdk = 36
-        versionCode = 18
-        versionName = "2.0.8"
+        versionCode = 19
+        versionName = "2.0.9"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

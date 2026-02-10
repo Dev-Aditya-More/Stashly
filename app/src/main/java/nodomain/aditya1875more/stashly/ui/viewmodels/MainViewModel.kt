@@ -33,6 +33,7 @@ class MainViewModel(
         repository.getAllItems()
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    private val _isSaved : Boolean = false
     fun saveLink(urlItem: SavedItem, fetched: LinkPreview?) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { _isLoading.value = true }

@@ -32,7 +32,6 @@ fun SavedContentScreen(
             .padding(horizontal = 16.dp)
             .padding(top = 30.dp)
     ) {
-        // Header Row
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -52,19 +51,26 @@ fun SavedContentScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(savedItems.take(1)) { item ->
-                SavedItemCard(
+            items(
+                savedItems.take(1),
+                key = { it.id }
+            ) { item ->
+
+                SwipeToDeleteCard(
                     item = item,
-                    onDelete = onDelete,
-                    onSaveEdit = onEdit,
-                    onItemClick = onItemClick
-                )
+                    onDelete = onDelete
+                ) {
+                    SavedItemCard(
+                        item = item,
+                        onDelete = onDelete,
+                        onSaveEdit = onEdit,
+                        onItemClick = onItemClick
+                    )
+                }
             }
         }
-
     }
 }
 

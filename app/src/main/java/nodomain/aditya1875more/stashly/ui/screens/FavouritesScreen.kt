@@ -1,5 +1,14 @@
 package nodomain.aditya1875more.stashly.ui.screens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -27,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
@@ -43,6 +53,7 @@ import androidx.navigation.NavHostController
 import nodomain.aditya1875more.stashly.Screen
 import nodomain.aditya1875more.stashly.ui.components.SavedItemCard
 import nodomain.aditya1875more.stashly.ui.components.StashlyBottomBar
+import nodomain.aditya1875more.stashly.ui.components.SwipeToDeleteCard
 import nodomain.aditya1875more.stashly.ui.viewmodels.FavouriteViewModel
 import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -79,32 +90,71 @@ fun FavouritesScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    if (isSearching) {
-                        TextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            placeholder = { Text("Search favourites…") },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth(),
-                            textStyle = MaterialTheme.typography.bodyMedium,
-                            colors = TextFieldDefaults.colors(
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                disabledIndicatorColor = Color.Transparent
+                    AnimatedContent(
+                        targetState = isSearching,
+                        transitionSpec = {
+                            fadeIn(tween(150)) + slideInHorizontally { it / 2 } togetherWith
+                                    fadeOut(tween(150)) + slideOutHorizontally { -it / 2 }
+                        },
+                        label = "SearchTitleAnim"
+                    ) { searching ->
+                        if (searching) {
+                            TextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                placeholder = { Text("Search favourites…") },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                textStyle = MaterialTheme.typography.bodyMedium,
+                                colors = TextFieldDefaults.colors(
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    disabledIndicatorColor = Color.Transparent
+                                )
                             )
-                        )
-                    } else Text("Favourites")
+                        } else {
+                            Text(
+                                "Settings",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
                 actions = {
-                    if (isSearching) {
-                        IconButton(onClick = {
-                            searchQuery = ""
-                            isSearching = false
-                        }) { Icon(Icons.Default.Close, contentDescription = "Close Search") }
-                    } else {
-                        IconButton(onClick = { isSearching = true }) { Icon(Icons.Default.Search, contentDescription = "Search") }
+                    AnimatedContent(
+                        targetState = isSearching,
+                        transitionSpec = {
+                            fadeIn(tween(120)) + scaleIn() togetherWith
+                                    fadeOut(tween(120)) + scaleOut()
+                        },
+                        label = "SearchIconAnim"
+                    ) { searching ->
+                        if (searching) {
+                            IconButton(
+                                onClick = {
+                                    searchQuery = ""
+                                    isSearching = false
+                                },
+                                modifier = Modifier.padding(end = 8.dp)
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = "Close Search")
+                            }
+                        } else {
+                            IconButton(
+                                onClick = { isSearching = true },
+                                modifier = Modifier.padding(end = 8.dp)
+                            ) {
+                                Icon(Icons.Default.Search, contentDescription = "Search")
+                            }
+                        }
                     }
                 }
+
             )
         },
         bottomBar = { StashlyBottomBar(navController) }
@@ -146,12 +196,17 @@ fun FavouritesScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredFavourites, key = { it.id }) { item ->
-                    SavedItemCard(
+                    SwipeToDeleteCard(
                         item = item,
-                        onDelete = { viewModel.removeItem(item) },
-                        onSaveEdit = { viewModel.editItem(item) },
-                        onItemClick = { navController.navigate(Screen.Detail.createRoute(item.id)) }
-                    )
+                        onDelete = { viewModel.removeItem(it) }
+                    ) {
+                        SavedItemCard(
+                            item = item,
+                            onDelete = { viewModel.removeItem(item) },
+                            onSaveEdit = { viewModel.editItem(item) },
+                            onItemClick = { navController.navigate(Screen.Detail.createRoute(item.id)) }
+                        )
+                    }
                 }
             }
         }

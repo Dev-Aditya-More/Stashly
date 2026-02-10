@@ -16,7 +16,8 @@ fun StashlyAppBar() {
             Text(
                 "Stashly",
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimary
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontWeight = MaterialTheme.typography.titleLarge.fontWeight
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
