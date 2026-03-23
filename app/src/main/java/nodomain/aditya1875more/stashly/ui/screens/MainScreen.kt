@@ -177,7 +177,7 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
 
                 if (isError) {
                     Text(
-                        "Please enter a valid URL",
+                        "Please enter a valid data",
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
