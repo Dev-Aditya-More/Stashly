@@ -1,5 +1,14 @@
 package nodomain.aditya1875more.stashly.ui.screens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +51,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import nodomain.aditya1875more.stashly.Screen
 import nodomain.aditya1875more.stashly.ui.components.SavedItemCard
+import nodomain.aditya1875more.stashly.ui.components.SwipeToDeleteCard
 import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -76,21 +86,32 @@ fun ItemScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    if (isSearching) {
-                        TextField(
-                            value = searchQuery,
-                            onValueChange = { searchQuery = it },
-                            placeholder = { Text("Search items…") },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth(),
-                            textStyle = MaterialTheme.typography.bodyMedium,
-                            colors = TextFieldDefaults.colors(
-                                focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
-                                disabledIndicatorColor = Color.Transparent
+                    AnimatedContent(
+                        targetState = isSearching,
+                        transitionSpec = {
+                            fadeIn(tween(150)) + slideInHorizontally { it / 2 } togetherWith
+                                    fadeOut(tween(150)) + slideOutHorizontally { -it / 2 }
+                        },
+                        label = "ItemSearchTitleAnim"
+                    ) { searching ->
+                        if (searching) {
+                            TextField(
+                                value = searchQuery,
+                                onValueChange = { searchQuery = it },
+                                placeholder = { Text("Search items…") },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                textStyle = MaterialTheme.typography.bodyMedium,
+                                colors = TextFieldDefaults.colors(
+                                    focusedIndicatorColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    disabledIndicatorColor = Color.Transparent
+                                )
                             )
-                        )
-                    } else Text("")
+                        } else {
+                            Spacer(Modifier) // keeps layout stable
+                        }
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -98,13 +119,32 @@ fun ItemScreen(
                     }
                 },
                 actions = {
-                    if (isSearching) {
-                        IconButton(onClick = {
-                            searchQuery = ""
-                            isSearching = false
-                        }) { Icon(Icons.Default.Close, contentDescription = "Close Search") }
-                    } else {
-                        IconButton(onClick = { isSearching = true }) { Icon(Icons.Default.Search, contentDescription = "Search") }
+                    AnimatedContent(
+                        targetState = isSearching,
+                        transitionSpec = {
+                            fadeIn(tween(120)) + scaleIn() togetherWith
+                                    fadeOut(tween(120)) + scaleOut()
+                        },
+                        label = "ItemSearchIconAnim"
+                    ) { searching ->
+                        if (searching) {
+                            IconButton(
+                                onClick = {
+                                    searchQuery = ""
+                                    isSearching = false
+                                },
+                                modifier = Modifier.padding(end = 8.dp)
+                            ) {
+                                Icon(Icons.Default.Close, contentDescription = "Close Search")
+                            }
+                        } else {
+                            IconButton(
+                                onClick = { isSearching = true },
+                                modifier = Modifier.padding(end = 8.dp)
+                            ) {
+                                Icon(Icons.Default.Search, contentDescription = "Search")
+                            }
+                        }
                     }
                 }
             )
@@ -138,12 +178,17 @@ fun ItemScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredItems, key = { it.id }) { item ->
-                    SavedItemCard(
+                    SwipeToDeleteCard(
                         item = item,
-                        onDelete = { viewModel.removeItem(item) },
-                        onSaveEdit = { viewModel.editItem(it) },
-                        onItemClick = { navController.navigate(Screen.Detail.createRoute(item.id)) }
-                    )
+                        onDelete = { viewModel.removeItem(it) }
+                    ) {
+                        SavedItemCard(
+                            item = item,
+                            onDelete = { viewModel.removeItem(item) },
+                            onSaveEdit = { viewModel.editItem(it) },
+                            onItemClick = { navController.navigate(Screen.Detail.createRoute(item.id)) }
+                        )
+                    }
                 }
             }
         }

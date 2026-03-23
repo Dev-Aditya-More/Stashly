@@ -49,7 +49,6 @@ import nodomain.aditya1875more.stashly.data.local.SavedItem
 import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
 import nodomain.aditya1875more.stashly.utils.getFileIconRes
 import org.koin.compose.viewmodel.koinViewModel
-import java.io.File
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -67,7 +66,6 @@ fun SavedItemCard(
     val viewModel: MainViewModel = koinViewModel()
     val context = LocalContext.current
 
-    // ---------- EDIT DIALOG ----------
     if (isEditing) {
         AlertDialog(
             onDismissRequest = { isEditing = false },
@@ -139,36 +137,34 @@ fun SavedItemCard(
         )
     }
 
-    // ---------- CARD VIEW ----------
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = !isEditing) { onItemClick(item) }
             .padding(horizontal = 12.dp)
             .graphicsLayer {
-                alpha = 0.9f
                 shadowElevation = 4f
                 shape = RoundedCornerShape(20.dp)
                 clip = true
             }
-            .background(
-                brush = Brush.verticalGradient(
-                    listOf(
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.1f),
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                    )
+        .background(
+            brush = Brush.verticalGradient(
+                listOf(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0.1f),
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                 )
             )
-            .border(
-                width = 1.dp,
-                brush = Brush.verticalGradient(
-                    listOf(
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.1f),
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                    )
-                ),
-                shape = RoundedCornerShape(20.dp)
+        )
+        .border(
+            width = 1.dp,
+            brush = Brush.verticalGradient(
+                listOf(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0.1f),
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                )
             ),
+            shape = RoundedCornerShape(20.dp)
+        ),
         elevation = CardDefaults.cardElevation(2.dp),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -284,19 +280,3 @@ fun getFileExtension(path: String?): String {
     return path.substringAfterLast('.', "")
 }
 
-fun getFileSizeText(path: String?): String {
-    if (path.isNullOrEmpty()) return "Unknown size"
-    return try {
-        val uri = path.toUri()
-        val file = File(uri.path!!)
-        if (!file.exists()) return "Unknown size"
-        val sizeKb = file.length() / 1024.0
-        if (sizeKb < 1024) {
-            "%.1f KB".format(sizeKb)
-        } else {
-            "%.1f MB".format(sizeKb / 1024)
-        }
-    } catch (e: Exception) {
-        "Unknown size"
-    }
-}

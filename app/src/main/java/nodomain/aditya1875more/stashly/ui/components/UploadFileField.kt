@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -77,7 +78,11 @@ fun UploadFileField(
                 contentDescription = "Choose File"
             )
             Spacer(Modifier.width(8.dp))
-            Text("Choose File", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "Choose File",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
+            )
         }
     }
 }

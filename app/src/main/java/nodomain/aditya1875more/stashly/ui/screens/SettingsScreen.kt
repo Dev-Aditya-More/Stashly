@@ -62,13 +62,17 @@ fun ThemeSettingsScreen(
 ) {
     val darkMode by themeViewModel.darkMode.collectAsStateWithLifecycle()
     val dynamicColor by themeViewModel.dynamicColor.collectAsStateWithLifecycle()
-    val contrastMode by themeViewModel.contrastMode.collectAsStateWithLifecycle()
     val seedColor by themeViewModel.seedColor.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings", style = MaterialTheme.typography.titleMedium)},
+                title = { Text(
+                    "Settings",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
+                    color = MaterialTheme.colorScheme.onSurface
+                )},
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
@@ -122,7 +126,7 @@ fun ThemeSettingsScreen(
             }
 
             item {
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(3.dp))
             }
 
             // Preview Section

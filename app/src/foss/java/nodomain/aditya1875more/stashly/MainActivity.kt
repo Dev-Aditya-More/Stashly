@@ -33,16 +33,9 @@ class MainActivity : ComponentActivity() {
 
         NotificationUtils.createNotificationChannel(this)
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
         NotificationScheduler.scheduleDailyNotifications(this)
 
         enableEdgeToEdge()
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            isAppearanceLightStatusBars = false
-            isAppearanceLightNavigationBars = false
-        }
 
         setContent {
             val themeViewModel : ThemeViewModel = koinViewModel()
