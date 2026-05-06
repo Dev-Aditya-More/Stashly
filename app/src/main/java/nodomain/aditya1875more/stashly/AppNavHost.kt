@@ -105,7 +105,7 @@ fun NavGraphBuilder.addMainGraph(
     windowSizeClass: WindowSizeClass
 ) {
     composable(Screen.Main.route) {
-        MainScreen(navController)
+        MainScreen(navController, windowSizeClass)
     }
     composable(Screen.Favourites.route) {
         FavouritesScreen(navController, windowSizeClass)
@@ -114,7 +114,8 @@ fun NavGraphBuilder.addMainGraph(
         val themeViewModel: ThemeViewModel = koinViewModel()
         ThemeSettingsScreen(
             themeViewModel = themeViewModel,
-            navController = navController
+            navController = navController,
+            windowSizeClass = windowSizeClass
         )
     }
 }

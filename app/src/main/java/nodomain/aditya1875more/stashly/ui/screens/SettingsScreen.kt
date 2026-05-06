@@ -30,6 +30,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -59,10 +61,17 @@ import nodomain.aditya1875more.stashly.ui.viewmodels.ThemeViewModel
 fun ThemeSettingsScreen(
     themeViewModel: ThemeViewModel,
     navController: NavHostController,
+    windowSizeClass: WindowSizeClass,
 ) {
     val darkMode by themeViewModel.darkMode.collectAsStateWithLifecycle()
     val dynamicColor by themeViewModel.dynamicColor.collectAsStateWithLifecycle()
     val seedColor by themeViewModel.seedColor.collectAsStateWithLifecycle()
+
+    val horizontalPadding = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Medium -> 24.dp
+        WindowWidthSizeClass.Expanded -> 32.dp
+        else -> 16.dp
+    }
 
     Scaffold(
         topBar = {
@@ -85,7 +94,7 @@ fun ThemeSettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(horizontal = horizontalPadding, vertical = 16.dp),
         ) {
             // Dark Mode Section
             item {

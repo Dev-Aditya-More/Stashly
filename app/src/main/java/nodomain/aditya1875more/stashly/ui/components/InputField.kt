@@ -23,10 +23,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Link
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -47,7 +47,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
@@ -88,20 +87,40 @@ fun InputField(
                     keyboardController?.hide()
                 })
             },
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(8.dp)
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Card header
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Bookmark,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "Quick Stash",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
             OutlinedTextField(
                 value = value,
                 onValueChange = onValueChange,
                 placeholder = { RotatingPlaceholder() },
-                label = { Text("Start here") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth(),
                 isError = isError,
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(12.dp),
                 singleLine = false,
                 maxLines = Int.MAX_VALUE,
                 textStyle = LocalTextStyle.current.copy(lineHeight = 20.sp),
@@ -111,46 +130,55 @@ fun InputField(
                         enter = fadeIn() + slideInVertically { it / 2 },
                         exit = fadeOut() + slideOutVertically { -it / 2 }
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color(0xFF0E830F))
-                        }
+                        Icon(
+                            Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             )
 
-            Spacer(Modifier.height(16.dp))
+            // Content type chip — appears when something is typed
+            if (value.count() > 4) {
+                Spacer(Modifier.height(8.dp))
+                val detectedType = remember(value) { classifyInput(value) }
+                val (typeLabel, typeIcon) = when (detectedType) {
+                    ContentType.LINK -> "Link detected" to Icons.Default.Link
+                    ContentType.TEXT -> "Note" to Icons.Default.Edit
+                    ContentType.FILE -> "File path" to Icons.Default.AttachFile
+                }
+                Surface(
+                    shape = RoundedCornerShape(50),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            typeIcon,
+                            contentDescription = null,
+                            modifier = Modifier.size(13.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(Modifier.width(5.dp))
+                        Text(
+                            typeLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(12.dp))
 
             val pulse by animateFloatAsState(
                 targetValue = if (!loading) 1f else 0.98f,
                 label = "stashPulse"
             )
-
-//            val detectedType = remember(value) { classifyInput(value) }
-//
-//            if (value.count() > 4) {
-//                AnimatedContent(
-//                    targetState = detectedType,
-//                    transitionSpec = {
-//                        fadeIn(tween(200)) + slideInVertically { it / 2 } togetherWith
-//                                fadeOut(tween(150)) + slideOutVertically { -it / 2 }
-//                    },
-//                    label = "TypeChipAnim"
-//                ) { type ->
-//                    val (label, icon) = when (type) {
-//                        ContentType.LINK -> "Link" to Icons.Default.Link
-//                        ContentType.TEXT -> "Note" to Icons.Default.Edit
-//                        ContentType.FILE -> "File" to Icons.Default.AttachFile
-//                    }
-//
-//                    AssistChip(
-//                        onClick = {},
-//                        label = { Text(label) },
-//                        leadingIcon = {
-//                            Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-//                        }
-//                    )
-//                }
-//            }
 
             AnimatedContent(
                 targetState = loading,
@@ -158,23 +186,27 @@ fun InputField(
             ) { isLoading ->
                 if (isLoading) {
                     Surface(
-                        shape = RoundedCornerShape(50),
+                        shape = RoundedCornerShape(14.dp),
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(56.dp)
+                            .height(52.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Center
                         ) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
+                                modifier = Modifier.size(20.dp),
                                 strokeWidth = 2.dp,
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                             Spacer(Modifier.width(12.dp))
-                            Text("Stashing…", color = MaterialTheme.colorScheme.onPrimary)
+                            Text(
+                                "Stashing…",
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                style = MaterialTheme.typography.labelLarge
+                            )
                         }
                     }
                 } else {
@@ -187,11 +219,12 @@ fun InputField(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(52.dp)
                             .graphicsLayer {
                                 scaleX = pulse
                                 scaleY = pulse
                             },
-                        shape = RoundedCornerShape(18.dp),
+                        shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary,
                             contentColor = MaterialTheme.colorScheme.onPrimary
@@ -200,13 +233,13 @@ fun InputField(
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = null,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(18.dp)
                         )
                         Spacer(Modifier.width(8.dp))
                         Text(
                             "Stash it",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = MaterialTheme.typography.titleMedium.fontWeight
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
@@ -244,9 +277,8 @@ private fun RotatingPlaceholder() {
         Text(
             text = "$text…",
             style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.8f)
+            fontWeight = FontWeight.Normal,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(0.7f)
         )
     }
 }
-

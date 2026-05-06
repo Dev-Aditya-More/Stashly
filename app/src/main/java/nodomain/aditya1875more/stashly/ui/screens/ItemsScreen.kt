@@ -82,6 +82,12 @@ fun ItemScreen(
         else -> 1
     }
 
+    val gridPadding = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Medium -> 24.dp
+        WindowWidthSizeClass.Expanded -> 32.dp
+        else -> 16.dp
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -173,9 +179,9 @@ fun ItemScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(horizontal = gridPadding, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(filteredItems, key = { it.id }) { item ->
                     SwipeToDeleteCard(
