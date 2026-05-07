@@ -86,6 +86,12 @@ fun FavouritesScreen(
         else -> 1
     }
 
+    val gridPadding = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Medium -> 24.dp
+        WindowWidthSizeClass.Expanded -> 32.dp
+        else -> 16.dp
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -114,7 +120,7 @@ fun FavouritesScreen(
                             )
                         } else {
                             Text(
-                                "Settings",
+                                "Favourites",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -191,9 +197,9 @@ fun FavouritesScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(horizontal = gridPadding, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(filteredFavourites, key = { it.id }) { item ->
                     SwipeToDeleteCard(

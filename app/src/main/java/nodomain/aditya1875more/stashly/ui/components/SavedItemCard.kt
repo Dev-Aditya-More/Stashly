@@ -5,8 +5,6 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -35,11 +34,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -65,6 +62,33 @@ fun SavedItemCard(
     var editedPath by remember { mutableStateOf(item.filePath ?: "") }
     val viewModel: MainViewModel = koinViewModel()
     val context = LocalContext.current
+
+    // Per-content-type color tokens
+    val cardContainerColor = when (item.contentType) {
+        ContentType.LINK -> MaterialTheme.colorScheme.tertiaryContainer
+        ContentType.TEXT -> MaterialTheme.colorScheme.secondaryContainer
+        ContentType.FILE -> MaterialTheme.colorScheme.surfaceContainerHigh
+    }
+    val titleColor = when (item.contentType) {
+        ContentType.LINK -> MaterialTheme.colorScheme.onTertiaryContainer
+        ContentType.TEXT -> MaterialTheme.colorScheme.onSecondaryContainer
+        ContentType.FILE -> MaterialTheme.colorScheme.onSurface
+    }
+    val subtitleColor = when (item.contentType) {
+        ContentType.LINK -> MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.65f)
+        ContentType.TEXT -> MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.65f)
+        ContentType.FILE -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    val typeAccentColor = when (item.contentType) {
+        ContentType.LINK -> MaterialTheme.colorScheme.tertiary
+        ContentType.TEXT -> MaterialTheme.colorScheme.secondary
+        ContentType.FILE -> MaterialTheme.colorScheme.primary
+    }
+    val typeName = when (item.contentType) {
+        ContentType.LINK -> "Link"
+        ContentType.TEXT -> "Note"
+        ContentType.FILE -> "File"
+    }
 
     if (isEditing) {
         AlertDialog(
@@ -140,46 +164,49 @@ fun SavedItemCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = !isEditing) { onItemClick(item) }
-            .padding(horizontal = 12.dp)
-            .graphicsLayer {
-                shadowElevation = 4f
-                shape = RoundedCornerShape(20.dp)
-                clip = true
-            }
-        .background(
-            brush = Brush.verticalGradient(
-                listOf(
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.1f),
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                )
-            )
-        )
-        .border(
-            width = 1.dp,
-            brush = Brush.verticalGradient(
-                listOf(
-                    MaterialTheme.colorScheme.surface.copy(alpha = 0.1f),
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                )
-            ),
-            shape = RoundedCornerShape(20.dp)
-        ),
-        elevation = CardDefaults.cardElevation(2.dp),
+            .clickable(enabled = !isEditing) { onItemClick(item) },
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = cardContainerColor)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // -------- VIEW MODE --------
+            // Content type badge
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(6.dp),
+                    color = typeAccentColor.copy(alpha = 0.18f)
+                ) {
+                    Text(
+                        text = typeName,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = typeAccentColor,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp)
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(10.dp))
+
             when (item.contentType) {
                 ContentType.LINK -> {
                     Text(
                         text = item.title?.ifBlank { "Untitled Link" } ?: "Untitled Link",
                         style = MaterialTheme.typography.titleMedium,
+                        color = titleColor,
+                        fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    Spacer(Modifier.height(2.dp))
                     Text(
                         text = item.url?.ifBlank { "No link available" } ?: "No link available",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = subtitleColor,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -189,41 +216,48 @@ fun SavedItemCard(
                     Text(
                         text = item.title?.ifBlank { "Untitled Note" } ?: "Untitled Note",
                         style = MaterialTheme.typography.titleMedium,
+                        color = titleColor,
+                        fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    Spacer(Modifier.height(2.dp))
                     Text(
                         text = item.text?.ifBlank { "No text found" } ?: "No text found",
-                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurface),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = subtitleColor,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
 
                 ContentType.FILE -> {
-                    val fileName = item.title ?: getReadableFileName(context,
+                    val fileName = item.title ?: getReadableFileName(
+                        context,
                         item.filePath?.toUri() ?: "".toUri()
                     )
-                    val fileExt = getFileExtension(item.filePath)
                     val iconRes = getFileIconRes(fileName)
 
                     Text(
                         text = fileName.ifBlank { "Unnamed File" },
                         style = MaterialTheme.typography.titleMedium,
+                        color = titleColor,
+                        fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-
+                    Spacer(Modifier.height(4.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
                             painter = painterResource(iconRes),
                             contentDescription = null,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
                             text = fileName.substringAfterLast('.', "Unknown").uppercase() + " file",
-                            style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = subtitleColor,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -241,7 +275,7 @@ fun SavedItemCard(
                     Icon(
                         painter = painterResource(R.drawable.edit),
                         contentDescription = "Edit",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = typeAccentColor
                     )
                 }
                 IconButton(onClick = { onDelete(item) }) {
@@ -274,9 +308,7 @@ fun getReadableFileName(context: Context, uri: Uri): String {
     }
 }
 
-
 fun getFileExtension(path: String?): String {
     if (path.isNullOrEmpty()) return ""
     return path.substringAfterLast('.', "")
 }
-

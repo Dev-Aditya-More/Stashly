@@ -7,6 +7,7 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -34,7 +36,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.windowsizeclass.WindowSizeClass
+import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,7 +68,17 @@ import org.koin.compose.viewmodel.koinViewModel
     ExperimentalMaterial3ExpressiveApi::class
 )
 @Composable
-fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koinViewModel()) {
+fun MainScreen(
+    navController: NavHostController,
+    windowSizeClass: WindowSizeClass,
+    viewModel: MainViewModel = koinViewModel()
+) {
+    val horizontalPadding: Dp = when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Medium -> 24.dp
+        WindowWidthSizeClass.Expanded -> 32.dp
+        else -> 16.dp
+    }
+
     var text by remember { mutableStateOf("") }
     val items by viewModel.items.collectAsState(initial = emptyList())
     var isError by remember { mutableStateOf(false) }
@@ -101,12 +116,13 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
             showSaved = false
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp).padding(top = 10.dp)) {
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
+                    .padding(paddingValues)
+                    .padding(horizontal = horizontalPadding),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(Modifier.height(16.dp))
@@ -177,7 +193,7 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
 
                 if (isError) {
                     Text(
-                        "Please enter a valid data",
+                        "Please enter valid data",
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier
@@ -187,16 +203,28 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                     )
                 }
 
-                Spacer(Modifier.height(15.dp))
+                Spacer(Modifier.height(20.dp))
 
-                Text(
-                    "or",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = MaterialTheme.typography.bodyMedium.fontWeight
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    HorizontalDivider(
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                    Text(
+                        "  or  ",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                }
 
-                Spacer(Modifier.height(15.dp))
+                Spacer(Modifier.height(20.dp))
 
                 // Upload file button
                 UploadFileField(
@@ -222,11 +250,11 @@ fun MainScreen(navController: NavHostController, viewModel: MainViewModel = koin
                     }
                 )
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(10.dp))
 
                 if (items.isEmpty()) {
                     LottieAnimationExample(
-                        modifier = Modifier.size(300.dp).padding(top = 50.dp),
+                        modifier = Modifier.size(300.dp).padding(top = 40.dp),
                     )
                 } else {
                     SavedContentScreen(

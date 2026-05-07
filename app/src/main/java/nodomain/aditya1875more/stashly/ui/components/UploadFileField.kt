@@ -6,12 +6,15 @@ import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -63,27 +66,44 @@ fun UploadFileField(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable { filePickerLauncher.launch(arrayOf("*/*")) }
-            .padding(horizontal = 16.dp),
+            .clickable { filePickerLauncher.launch(arrayOf("*/*")) },
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = BorderStroke(
+            width = 1.5.dp,
+            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.6f)
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.35f)
+        )
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 18.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
             Icon(
                 imageVector = Icons.Default.AttachFile,
-                contentDescription = "Choose File"
+                contentDescription = "Choose File",
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(22.dp)
             )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                "Choose File",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = MaterialTheme.typography.bodyMedium.fontWeight,
-            )
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text(
+                    "Attach a file",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+                Text(
+                    "PDF, images, docs and more",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.65f)
+                )
+            }
         }
     }
 }
-
