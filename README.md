@@ -35,14 +35,6 @@ Stashly lets you save, organize, and view different types of content (text, link
 |:-------------------------------------------------------------------:|:-------------------------------------------------------------------:|
 | ![3](fastlane/metadata/android/en-US/images/phoneScreenshots/3.png) | ![4](fastlane/metadata/android/en-US/images/phoneScreenshots/4.png) |
 
----  
-
-https://github.com/user-attachments/assets/48229af1-f9f7-4a00-84d8-990c3c9f34e8
-
-<hr>
-
-https://github.com/user-attachments/assets/4411b1f7-de44-4cd6-bb40-f607b2805c72
-
 ---
 
 ## 🛠️ Tech Stack
