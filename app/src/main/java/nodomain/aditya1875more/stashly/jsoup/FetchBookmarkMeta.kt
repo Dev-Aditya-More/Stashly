@@ -5,9 +5,10 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import androidx.core.net.toUri
 
-suspend fun fetchBookmarkMetadata(url: String): BookmarkMetaData? {
+// Jsoup's blocking call ignores coroutine cancellation, so the timeout has to live on the connection
+suspend fun fetchBookmarkMetadata(url: String, timeoutMs: Int = 15_000): BookmarkMetaData? {
     return try {
-        val doc = withContext(Dispatchers.IO) { Jsoup.connect(url).get() }
+        val doc = withContext(Dispatchers.IO) { Jsoup.connect(url).timeout(timeoutMs).get() }
 
         val title = cleanTitle(
             doc.select("meta[property=og:title]").attr("content")

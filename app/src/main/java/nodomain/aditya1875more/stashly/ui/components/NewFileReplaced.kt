@@ -1,6 +1,8 @@
 package nodomain.aditya1875more.stashly.ui.components
 
+import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Spacer
@@ -26,16 +28,26 @@ fun ReplaceFileButton(
     val context = LocalContext.current
 
     val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        // OpenDocument (not GetContent) so the permission can be persisted like a fresh upload;
+        // otherwise the replaced file stops opening after a restart
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let { pickedUri ->
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    pickedUri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (e: SecurityException) {
+                Log.e("ReplaceFileButton", "Failed to take persistable permission", e)
+            }
             val fileName = getFileName(context, pickedUri)
             onFileReplaced(pickedUri, fileName)
         }
     }
 
     Button(
-        onClick = { filePickerLauncher.launch("*/*") },
+        onClick = { filePickerLauncher.launch(arrayOf("*/*")) },
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
     ) {

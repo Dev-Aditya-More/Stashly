@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,10 +23,12 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,6 +38,8 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.ui.platform.LocalUriHandler
+import nodomain.aditya1875more.stashly.BuildConfig
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -143,9 +148,61 @@ fun ThemeSettingsScreen(
                 ThemePreview()
             }
 
+            if (BuildConfig.SHOW_DONATE) {
+                item {
+                    Spacer(modifier = Modifier.height(25.dp))
+                }
+
+                item {
+                    SettingsSection(title = "Support") {
+                        BuyMeACoffeeRow()
+                    }
+                }
+            }
+
             item {
                 Spacer(modifier = Modifier.height(5.dp))
             }
+        }
+    }
+}
+
+private const val BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/aditya1875q"
+
+@Composable
+private fun BuyMeACoffeeRow() {
+    val uriHandler = LocalUriHandler.current
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { uriHandler.openUri(BUY_ME_A_COFFEE_URL) },
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = Icons.Default.LocalCafe,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(
+                text = "Buy me a coffee",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                contentDescription = "Opens in browser",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

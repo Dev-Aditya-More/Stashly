@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsControllerCompat
+import com.materialkolor.dynamicColorScheme
 import nodomain.aditya1875more.stashly.data.preferences.ContrastMode
 import nodomain.aditya1875more.stashly.data.preferences.DarkMode
 import nodomain.aditya1875more.stashly.data.preferences.ThemeSeed
@@ -288,33 +289,25 @@ fun StashlyTheme(
             else dynamicLightColorScheme(context)
         }
 
-        else -> {
-            val seedColorValue = Color(seedColor.seedColor)
-
-            when (contrastMode) {
-                ContrastMode.STANDARD -> {
-                    if (darkTheme) {
-                        darkColorScheme(primary = seedColorValue)
-                    } else {
-                        lightColorScheme(primary = seedColorValue)
-                    }
-                }
-                ContrastMode.MEDIUM -> {
-                    if (darkTheme) {
-                        mediumContrastDarkColorScheme
-                    } else {
-                        mediumContrastLightColorScheme
-                    }
-                }
-                ContrastMode.HIGH -> {
-                    if (darkTheme) {
-                        highContrastDarkColorScheme
-                    } else {
-                        highContrastLightColorScheme
-                    }
-                }
-            }
+        // The hand-tuned palettes in Color.kt were generated from the Ocean Blue seed
+        seedColor == ThemeSeed.BLUE -> when (contrastMode) {
+            ContrastMode.STANDARD -> if (darkTheme) darkScheme else lightScheme
+            ContrastMode.MEDIUM -> if (darkTheme) mediumContrastDarkColorScheme else mediumContrastLightColorScheme
+            ContrastMode.HIGH -> if (darkTheme) highContrastDarkColorScheme else highContrastLightColorScheme
         }
+
+        // Other seeds get a full tonal palette. Setting only `primary` left the light-theme seed
+        // on dark surfaces and every other role on Material's default purple, which is what made
+        // dark mode text and accents blend into the background.
+        else -> dynamicColorScheme(
+            seedColor = Color(seedColor.seedColor),
+            isDark = darkTheme,
+            contrastLevel = when (contrastMode) {
+                ContrastMode.STANDARD -> 0.0
+                ContrastMode.MEDIUM -> 0.5
+                ContrastMode.HIGH -> 1.0
+            }
+        )
     }
 
     SideEffect {

@@ -12,6 +12,7 @@ import nodomain.aditya1875more.stashly.data.remote.ItemRepository
 import nodomain.aditya1875more.stashly.data.remote.ItemRepositoryImpl
 import nodomain.aditya1875more.stashly.ui.viewmodels.FavouriteViewModel
 import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
+import nodomain.aditya1875more.stashly.ui.viewmodels.ShareViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -23,7 +24,7 @@ val appModule = module{
                 get(),
                 AppDatabase::class.java,
                 "app_database"
-            ).fallbackToDestructiveMigration(true).build()
+            ).build()
     }
 
     single{
@@ -49,6 +50,8 @@ val appModule = module{
     viewModel{
         FavouriteViewModel(get())
     }
+
+    viewModel { ShareViewModel(get()) }
 
 }
 

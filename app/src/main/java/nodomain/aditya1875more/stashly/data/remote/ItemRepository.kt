@@ -10,6 +10,7 @@ interface ItemRepository {
     suspend fun editItem(item: SavedItem)
     fun getAllItems(): Flow<List<SavedItem>>
     fun getItemById(id: Int): Flow<SavedItem?>
+    suspend fun getItemByUrl(url: String): SavedItem?
     fun getFavourites(): Flow<List<SavedItem>>
     suspend fun toggleFavourite(id: Int, isFavourite: Boolean)
 }
@@ -27,6 +28,8 @@ class ItemRepositoryImpl(
     override fun getAllItems(): Flow<List<SavedItem>> = dao.getAll()
 
     override fun getItemById(id: Int): Flow<SavedItem?> = dao.getItemById(id)
+
+    override suspend fun getItemByUrl(url: String): SavedItem? = dao.getItemByUrl(url)
 
     override fun getFavourites(): Flow<List<SavedItem>> = dao.getFavourites()
 

@@ -17,8 +17,8 @@ android {
         applicationId = "nodomain.aditya1875more.stashly"
         minSdk = 25
         targetSdk = 36
-        versionCode = 21
-        versionName = "2.1.1"
+        versionCode = 23
+        versionName = "2.2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -32,12 +32,15 @@ android {
             applicationIdSuffix = ".play"
             versionNameSuffix = "-play"
             buildConfigField("boolean", "USE_FIREBASE", "true")
+            // Play's payments policy disallows linking out for tips, so the Buy Me a Coffee row stays FOSS-only
+            buildConfigField("boolean", "SHOW_DONATE", "true")
         }
 
         create("foss") {
             dimension = "distribution"
             isDefault = true
             buildConfigField("boolean", "USE_FIREBASE", "false")
+            buildConfigField("boolean", "SHOW_DONATE", "true")
         }
     }
 
@@ -165,6 +168,10 @@ dependencies {
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
 }
 
 java {

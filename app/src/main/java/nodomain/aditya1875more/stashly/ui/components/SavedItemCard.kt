@@ -16,17 +16,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,9 +39,7 @@ import androidx.core.net.toUri
 import nodomain.aditya1875more.stashly.R
 import nodomain.aditya1875more.stashly.data.local.ContentType
 import nodomain.aditya1875more.stashly.data.local.SavedItem
-import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
 import nodomain.aditya1875more.stashly.utils.getFileIconRes
-import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -56,33 +50,18 @@ fun SavedItemCard(
     onItemClick: (SavedItem) -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
-    var editedTitle by remember { mutableStateOf(item.title ?: "") }
-    var editedText by remember { mutableStateOf(item.text ?: "") }
-    var editedUrl by remember { mutableStateOf(item.url ?: "") }
-    var editedPath by remember { mutableStateOf(item.filePath ?: "") }
-    val viewModel: MainViewModel = koinViewModel()
     val context = LocalContext.current
 
-    // Per-content-type color tokens
-    val cardContainerColor = when (item.contentType) {
-        ContentType.LINK -> MaterialTheme.colorScheme.tertiaryContainer
-        ContentType.TEXT -> MaterialTheme.colorScheme.secondaryContainer
-        ContentType.FILE -> MaterialTheme.colorScheme.surfaceContainerHigh
-    }
-    val titleColor = when (item.contentType) {
-        ContentType.LINK -> MaterialTheme.colorScheme.onTertiaryContainer
-        ContentType.TEXT -> MaterialTheme.colorScheme.onSecondaryContainer
-        ContentType.FILE -> MaterialTheme.colorScheme.onSurface
-    }
-    val subtitleColor = when (item.contentType) {
-        ContentType.LINK -> MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.65f)
-        ContentType.TEXT -> MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.65f)
-        ContentType.FILE -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
+    // Cards sit on the theme's neutral surface so they follow light/dark and the chosen seed;
+    // tinted containers (tertiary is pink in most palettes) made whole lists look off-theme.
+    // Only the small type badge carries a per-type accent.
+    val cardContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+    val titleColor = MaterialTheme.colorScheme.onSurface
+    val subtitleColor = MaterialTheme.colorScheme.onSurfaceVariant
     val typeAccentColor = when (item.contentType) {
-        ContentType.LINK -> MaterialTheme.colorScheme.tertiary
+        ContentType.LINK -> MaterialTheme.colorScheme.primary
         ContentType.TEXT -> MaterialTheme.colorScheme.secondary
-        ContentType.FILE -> MaterialTheme.colorScheme.primary
+        ContentType.FILE -> MaterialTheme.colorScheme.tertiary
     }
     val typeName = when (item.contentType) {
         ContentType.LINK -> "Link"
@@ -91,72 +70,12 @@ fun SavedItemCard(
     }
 
     if (isEditing) {
-        AlertDialog(
-            onDismissRequest = { isEditing = false },
-            title = { Text("Edit Item") },
-            text = {
-                Column {
-                    OutlinedTextField(
-                        value = editedTitle,
-                        onValueChange = { editedTitle = it },
-                        label = { Text("Title") },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    when (item.contentType) {
-                        ContentType.LINK -> {
-                            Spacer(Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = editedUrl,
-                                onValueChange = { editedUrl = it },
-                                label = { Text("Link") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-
-                        ContentType.TEXT -> {
-                            Spacer(Modifier.height(8.dp))
-                            OutlinedTextField(
-                                value = editedText,
-                                onValueChange = { editedText = it },
-                                label = { Text("Note") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-
-                        ContentType.FILE -> {
-                            Spacer(Modifier.height(8.dp))
-                            ReplaceFileButton(
-                                onFileReplaced = { uri, fileName ->
-                                    editedPath = uri.toString()
-                                    val updatedItem = item.copy(
-                                        filePath = editedPath,
-                                        title = fileName
-                                    )
-                                    viewModel.editItem(updatedItem)
-                                }
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                Button(onClick = {
-                    onSaveEdit(
-                        item.copy(
-                            title = editedTitle.ifBlank { item.title ?: "Untitled" },
-                            text = editedText.ifBlank { item.text },
-                            url = editedUrl.ifBlank { item.url },
-                            filePath = editedPath.ifBlank { item.filePath }
-                        )
-                    )
-                    isEditing = false
-                }) {
-                    Text("Save")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { isEditing = false }) { Text("Cancel") }
+        EditItemDialog(
+            item = item,
+            onDismiss = { isEditing = false },
+            onSave = {
+                onSaveEdit(it)
+                isEditing = false
             }
         )
     }

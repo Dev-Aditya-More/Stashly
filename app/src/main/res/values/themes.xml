@@ -4,4 +4,11 @@
     <style name="Theme.Stashly.NoSplash" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowIsTranslucent">true</item>
     </style>
+
+    <!-- Transparent window so the share sheet overlays the calling app -->
+    <style name="Theme.Stashly.Share" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>

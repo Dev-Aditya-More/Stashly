@@ -31,9 +31,8 @@ class MainViewModel(
 
     val items: StateFlow<List<SavedItem>> =
         repository.getAllItems()
-            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    private val _isSaved : Boolean = false
     fun saveLink(urlItem: SavedItem, fetched: LinkPreview?) {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) { _isLoading.value = true }

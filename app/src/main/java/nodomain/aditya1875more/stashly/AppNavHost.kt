@@ -40,7 +40,9 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     object Detail : Screen("detail", "", Icons.Default.Home) {
         fun createRoute(id: Int) = "$route/$id"
     }
-    object Items : Screen("items", "", Icons.Default.Home)
+    object Items : Screen("items", "", Icons.Default.Home) {
+        fun createRoute(search: Boolean = false) = "$route?search=$search"
+    }
 
     object ThemeSettings : Screen("theme_settings", "Theme", Icons.Default.Settings)
 }
@@ -85,6 +87,7 @@ fun AppNavHost(
                             onToggleFavorite = { id, fav ->
                                 favViewModel.toggleFavourite(id, fav)
                             },
+                            onSaveEdit = { viewModel.editItem(it) },
                             onBack = { navController.popBackStack() },
                             windowSizeClass = windowSizeClass
                         )
@@ -93,8 +96,18 @@ fun AppNavHost(
             }
         }
 
-        composable(Screen.Items.route) {
-            ItemScreen(navController, windowSizeClass)
+        composable(
+            route = Screen.Items.route + "?search={search}",
+            arguments = listOf(navArgument("search") {
+                type = NavType.BoolType
+                defaultValue = false
+            })
+        ) { backStackEntry ->
+            ItemScreen(
+                navController = navController,
+                windowSizeClass = windowSizeClass,
+                startSearching = backStackEntry.arguments?.getBoolean("search") ?: false
+            )
         }
     }
 }

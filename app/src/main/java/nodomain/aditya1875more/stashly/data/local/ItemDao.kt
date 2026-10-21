@@ -25,6 +25,9 @@ interface ItemDao {
     @Query("SELECT * FROM items WHERE id = :id LIMIT 1")
     fun getItemById(id: Int): Flow<SavedItem?>
 
+    @Query("SELECT * FROM items WHERE url = :url LIMIT 1")
+    suspend fun getItemByUrl(url: String): SavedItem?
+
     @Query("SELECT * FROM items WHERE isFavorite = 1 ORDER BY createdAt DESC")
     fun getFavourites(): Flow<List<SavedItem>>
 

@@ -56,6 +56,7 @@ import nodomain.aditya1875more.stashly.ui.components.StashlyBottomBar
 import nodomain.aditya1875more.stashly.ui.components.SwipeToDeleteCard
 import nodomain.aditya1875more.stashly.ui.viewmodels.FavouriteViewModel
 import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
+import nodomain.aditya1875more.stashly.utils.matchesQuery
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,11 +73,7 @@ fun FavouritesScreen(
 
     val filteredFavourites = remember(searchQuery, favourites) {
         if (searchQuery.isBlank()) favourites
-        else favourites.filter { item ->
-            val keyword = searchQuery.lowercase()
-            item.text?.lowercase()?.contains(keyword) == true ||
-                    item.filePath?.lowercase()?.contains(keyword) == true
-        }
+        else favourites.filter { it.matchesQuery(searchQuery) }
     }
 
     val columns = when (windowSizeClass.widthSizeClass) {
@@ -209,7 +206,7 @@ fun FavouritesScreen(
                         SavedItemCard(
                             item = item,
                             onDelete = { viewModel.removeItem(item) },
-                            onSaveEdit = { viewModel.editItem(item) },
+                            onSaveEdit = { viewModel.editItem(it) },
                             onItemClick = { navController.navigate(Screen.Detail.createRoute(item.id)) }
                         )
                     }

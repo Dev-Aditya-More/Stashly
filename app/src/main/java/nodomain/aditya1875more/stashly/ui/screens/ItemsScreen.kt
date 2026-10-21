@@ -1,5 +1,6 @@
 package nodomain.aditya1875more.stashly.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -39,12 +40,15 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -53,6 +57,7 @@ import nodomain.aditya1875more.stashly.Screen
 import nodomain.aditya1875more.stashly.ui.components.SavedItemCard
 import nodomain.aditya1875more.stashly.ui.components.SwipeToDeleteCard
 import nodomain.aditya1875more.stashly.ui.viewmodels.MainViewModel
+import nodomain.aditya1875more.stashly.utils.matchesQuery
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,19 +65,22 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ItemScreen(
     navController: NavHostController,
     windowSizeClass: WindowSizeClass,
+    startSearching: Boolean = false,
     viewModel: MainViewModel = koinViewModel()
 ) {
     val items by viewModel.items.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
-    var isSearching by remember { mutableStateOf(false) }
+    var isSearching by remember { mutableStateOf(startSearching) }
+    val searchFocusRequester = remember { FocusRequester() }
 
     val filteredItems = remember(searchQuery, items) {
         if (searchQuery.isBlank()) items
-        else items.filter { item ->
-            val keyword = searchQuery.lowercase()
-            item.text?.lowercase()?.contains(keyword) == true ||
-                    item.filePath?.lowercase()?.contains(keyword) == true
-        }
+        else items.filter { it.matchesQuery(searchQuery) }
+    }
+
+    BackHandler(enabled = isSearching) {
+        searchQuery = ""
+        isSearching = false
     }
 
     val columns = when (windowSizeClass.widthSizeClass) {
@@ -101,12 +109,16 @@ fun ItemScreen(
                         label = "ItemSearchTitleAnim"
                     ) { searching ->
                         if (searching) {
+                            // Runs once the field is attached, so the request can't hit an unbound requester
+                            LaunchedEffect(Unit) { searchFocusRequester.requestFocus() }
                             TextField(
                                 value = searchQuery,
                                 onValueChange = { searchQuery = it },
                                 placeholder = { Text("Search items…") },
                                 singleLine = true,
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .focusRequester(searchFocusRequester),
                                 textStyle = MaterialTheme.typography.bodyMedium,
                                 colors = TextFieldDefaults.colors(
                                     focusedIndicatorColor = Color.Transparent,
@@ -115,7 +127,11 @@ fun ItemScreen(
                                 )
                             )
                         } else {
-                            Spacer(Modifier) // keeps layout stable
+                            Text(
+                                "All items",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 },

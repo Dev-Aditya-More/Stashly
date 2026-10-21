@@ -1,7 +1,11 @@
 package nodomain.aditya1875more.stashly.ui.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -11,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StashlyAppBar() {
+fun StashlyAppBar(onSearchClick: (() -> Unit)? = null) {
     TopAppBar(
         title = {
             Column {
@@ -26,6 +30,17 @@ fun StashlyAppBar() {
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
                 )
+            }
+        },
+        actions = {
+            if (onSearchClick != null) {
+                IconButton(onClick = onSearchClick) {
+                    Icon(
+                        Icons.Default.Search,
+                        contentDescription = "Search all items",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

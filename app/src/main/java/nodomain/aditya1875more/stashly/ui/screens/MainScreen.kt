@@ -55,6 +55,7 @@ import nodomain.aditya1875more.stashly.ui.components.AddBookmarkSheet
 import nodomain.aditya1875more.stashly.ui.components.InputField
 import nodomain.aditya1875more.stashly.ui.components.LottieAnimationExample
 import nodomain.aditya1875more.stashly.ui.components.SavedContentScreen
+import nodomain.aditya1875more.stashly.ui.components.ShareTipCard
 import nodomain.aditya1875more.stashly.ui.components.StashlyAppBar
 import nodomain.aditya1875more.stashly.ui.components.StashlyBottomBar
 import nodomain.aditya1875more.stashly.ui.components.UploadFileField
@@ -93,7 +94,11 @@ fun MainScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { StashlyAppBar() },
+        topBar = {
+            StashlyAppBar(
+                onSearchClick = { navController.navigate(Screen.Items.createRoute(search = true)) }
+            )
+        },
         bottomBar = { StashlyBottomBar(navController) },
         floatingActionButton = {
             FloatingActionButton(onClick = { showAddBookmarkSheet = true }) {
@@ -250,6 +255,8 @@ fun MainScreen(
                     }
                 )
 
+                ShareTipCard(modifier = Modifier.padding(top = 16.dp))
+
                 Spacer(Modifier.height(10.dp))
 
                 if (items.isEmpty()) {
@@ -259,6 +266,7 @@ fun MainScreen(
                 } else {
                     SavedContentScreen(
                         savedItems = items,
+                        windowSizeClass = windowSizeClass,
                         onDelete = { savedItem -> viewModel.removeItem(savedItem) },
                         onEdit = { savedItem -> viewModel.editItem(savedItem) },
                         onItemClick = { item ->
